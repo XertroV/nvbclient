@@ -20,7 +20,7 @@ requires = [
     ]
 
 setup(name='nvb-client',
-      version='0.0',
+      version='0.0.1',
       description='nvb-client',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
