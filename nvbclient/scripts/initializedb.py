@@ -1,8 +1,10 @@
 import os
 import sys
 import transaction
+
 from cryptography.fernet import Fernet
-from base64 import b64encode
+
+from pycoin.key import Key
 
 from sqlalchemy import engine_from_config
 
@@ -20,6 +22,8 @@ from ..models import (
     )
 
 from ..crypto import gen_key_from_salt_and_password
+
+from ..constants import ENDIAN, USE_COMPRESSED
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
@@ -43,9 +47,14 @@ def main(argv=sys.argv):
     salt = os.urandom(32)
     
     # initial password is the empty string
-    key = gen_key_from_salt_and_password(salt, b'')
+    enc_key = gen_key_from_salt_and_password(salt, b'')
+
+    secret_exponent_bytes = os.urandom(32)
+    secret_exponent = int.from_bytes(secret_exponent_bytes, ENDIAN)
+    address = Key(secret_exponent=secret_exponent).address(use_uncompressed=USE_COMPRESSED)
     
-    f = Fernet(key)
+    f = Fernet(enc_key)
     with transaction.manager:
-        model = KeyStore(name='primary', encrypted=f.encrypt(os.urandom(32)), salt=salt)
+        model = KeyStore(name='primary', encrypted=f.encrypt(secret_exponent_bytes),
+                         salt=salt, address=address)
         DBSession.add(model)

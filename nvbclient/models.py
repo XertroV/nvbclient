@@ -25,5 +25,6 @@ class KeyStore(Base):
     name = Column(Text)
     encrypted = Column(LargeBinary)
     salt = Column(LargeBinary)
+    address = Column(Text)
 
 Index('name_index', KeyStore.name, unique=True, mysql_length=255)

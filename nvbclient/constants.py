@@ -1,1 +1,3 @@
 ENDIAN = 'big'
+
+USE_COMPRESSED = False

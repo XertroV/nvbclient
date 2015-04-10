@@ -19,6 +19,7 @@ requires = [
     'waitress',
     'cryptography',
     'pycoin',
+    'blockchain',
     ]
 
 setup(name='nvb-client',
