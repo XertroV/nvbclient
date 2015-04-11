@@ -45,6 +45,8 @@ def main(argv=sys.argv):
     
     # initial encryption passphrase set to ''
     salt = os.urandom(32)
+
+    password = bytes(input("If you would like to set a password, please enter it now. Otherwise, just press enter. > ").encode())
     
     # initial password is the empty string
     enc_key = gen_key_from_salt_and_password(salt, b'')

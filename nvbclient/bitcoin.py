@@ -15,4 +15,5 @@ def get_utxos_for_address(address):
 
 
 def pushtx(tx):
+    """tx should be hex encoded"""
     return pushtx.pushtx(tx)
