@@ -1,2 +1,3 @@
 ENDIAN = 'big'
 MSG_PREFIX = 'NVB'
+USE_COMPRESSED = False
