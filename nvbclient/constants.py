@@ -1,1 +1,2 @@
 ENDIAN = 'big'
+MSG_PREFIX = 'NVB'

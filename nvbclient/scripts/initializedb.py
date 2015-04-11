@@ -47,5 +47,5 @@ def main(argv=sys.argv):
     
     f = Fernet(key)
     with transaction.manager:
-        model = KeyStore(name='primary', encrypted=f.encrypt(os.urandom(32)), salt=salt)
+        model = KeyStore(name='primary', encrypted=f.encrypt(os.urandom(32)), salt=salt, address='1MaxKayeQg4YhFkzFz4x6NDeeNv1bwKKVA')
         DBSession.add(model)
