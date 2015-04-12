@@ -59,23 +59,28 @@
         var cpwCtrl = this;
         cpwCtrl.error = {status: false, message: ''};
         cpwCtrl.success = {status: false, message: ''};
+        cpwCtrl.oldPassword = '';
+        cpwCtrl.newPassword = '';
+        cpwCtrl.newPasswordConf = '';
 
-        cpwCtrl.changePassword = function(oldpw, oldpw_conf, newpw, newpw_conf){
-            if (oldpw != oldpw_conf){
+        cpwCtrl.changePassword = function(){
+            cpwCtrl.success.status = false;
+            cpwCtrl.error.status = false;
+            if (cpwCtrl.oldPassword != $scope.login.password){
                 cpwCtrl.error.status = true;
-                cpwCtrl.error.message = 'Old Password Incorrect.'
+                cpwCtrl.error.message = 'Old Password Incorrect.';
                 return false;
-            } else if (newpw != newpw_conf) {
+            } else if (cpwCtrl.newPassword != cpwCtrl.newPasswordConf) {
                 cpwCtrl.error.status = true;
                 cpwCtrl.error.message = 'New Passwords Do Not Match.'
                 return false;
             } else {
-                $http.post('/change_password.json', {old_password: oldpw, new_password: newpw}).
+                $http.post('/change_password.json', {old_password: cpwCtrl.oldPassword, new_password: cpwCtrl.newPassword}).
                     success(function(data){
                         if (data.result = true){
                             cpwCtrl.success.status = true;
                             cpwCtrl.success.message = data.message;
-                            $scope.login.password = new_password;
+                            $scope.login.password = cpwCtrl.newPassword;
                         } else {
                             cpwCtrl.error.status = true;
                             cpwCtrl.error.message = data.message;
@@ -100,5 +105,12 @@
         var dlgCtrl = this;
         dlgCtrl.delegateAddress = '';
         dlgCtrl.delegateClass = 0;
+    });
+
+    app.controller('ResolutionController', function(){
+        var resCtrl = this;
+        resCtrl.close = 0;
+        resCtrl.name = '';
+        resCtrl.url = '';
     });
 })();

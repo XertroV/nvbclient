@@ -137,6 +137,27 @@
                             <div class="col-md-2"></div>
                             <div class="col-md-8">
 
+                                <h3>Create / Modfiy Resolution</h3><hr>
+                                <form name="resolutionForm" ng-controller="ResolutionController as resCtrl">
+                                    <div class="form-group">
+                                        <label for="res-name">Resolution Name:</label>
+                                        <input type="text" id="res-name" class="resolution form-control" ng-model="resCtrl.name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="res-url">Resolution URL:</label>
+                                        <input type="text" id="res-url" class="form-control" ng-model="resCtrl.url">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="res-close">Resolution End Timestamp:</label>
+                                        <input type="text" id="res-close" class="form-control" ng-model="resCtrl.close">
+                                    </div>
+                                    <button class="btn btn-default">Set {{resCtrl.name | uppercase}}, closing on {{resCtrl.close | date: "yyyy-MM-dd HH:mm"}}</button>
+                                </form>
+
+                                <h3>Empower</h3><hr>
+
+                                <h3>Create New Network</h3><hr>
+
                             </div>
                         </div>
 
@@ -150,17 +171,17 @@
                                 <form name="changePW" novalidate ng-controller="ChangePasswordController as cpwCtrl">
                                     <div class="form-group">
                                         <label for="oldpw">Old Password:</label>
-                                        <input type="password" value='' name="oldpw" id="oldpw" ng-model="oldPassword" class="form-control" />
+                                        <input type="password" name="oldpw" id="oldpw" ng-model="cpwCtrl.oldPassword" class="form-control" />
                                     </div>
                                     <div class="form-group">
                                         <label for="new_password">New Password:</label>
-                                        <input type="password" value='' name="new_password" id="new_password" ng-model="newPassword" class="form-control"/>
+                                        <input type="password" name="new_password" id="new_password" ng-model="cpwCtrl.newPassword" class="form-control"/>
                                     </div>
                                     <div class="form-group">
                                         <label for="confirm_password">New Password: (confirm)</label>
-                                        <input type="password" value='' name="confirm_password" id="confirm_password" ng-model="newPasswordConf" class="form-control"/>
+                                        <input type="password" name="confirm_password" id="confirm_password" ng-model="cpwCtrl.newPasswordConf" class="form-control"/>
                                     </div>
-                                    <button ng-click="cpwCtrl.changePassword(login.password, oldPassword, newPassword, newPasswordConf)" class="btn btn-standard">Change Password</button>
+                                    <button ng-click="cpwCtrl.changePassword()" class="btn btn-standard">Change Password</button>
                                     <p>
                                         <div class="alert alert-danger" role="alert" ng-show="cpwCtrl.error.status">
                                             {{cpwCtrl.error.message}}
