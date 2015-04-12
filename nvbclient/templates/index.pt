@@ -8,7 +8,7 @@
     <meta name="author" content="Pylons Project">
     <link rel="shortcut icon" href="${request.static_url('nvbclient:static/pyramid-16x16.png')}">
 
-    <title>Alchemy Scaffold for The Pyramid Web Framework</title>
+    <title>NVB Client</title>
 
     <!-- Bootstrap core CSS -->
     <link href="${request.static_url('nvbclient:static/bootstrap.css')}" rel="stylesheet">
@@ -85,7 +85,8 @@
                             <div class="col-md-8">
                                 <h3>Public ID</h3><hr>
                                 <h4>{{login.address}}</h4>
-                                Votes Remaining: {{999}} <span class="pull-right"><a href="#">Get More</a></span>
+                                Votes Remaining: {{login.balance / 10000}} <span class="pull-right"><a href="#">Get More</a></span><br>
+                                Unspent Outputs: {{login.n_utxos}}
                             </div>
                         </div>
 
@@ -157,7 +158,18 @@
                                 <h3>Empower</h3><hr>
 
                                 <h3>Create New Network</h3><hr>
-
+                                <div ng-controller="NewNetworkController as newCtrl">
+                                    <form>
+                                        <div class="form-group">
+                                            <label for="new-name">New Network Name:</label>
+                                            <input type="text" id="new-name" ng-model="newCtrl.name">
+                                        </div>
+                                        <button class="btn btn-lg" ng-click="newCtrl.make()">Create New Network Named {{newCtrl.name}}</button>
+                                    </form>
+                                    <div ng-show="newCtrl.status">
+                                        {{newCtrl.message}}
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -203,6 +215,14 @@
 
                             </div>
                         </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <hr>
+                    <div ng-controller="BatchJobController as jobs">
+                        <ul class="list-inline">
+                            <li ng-repeat="job in jobs.jobs"><label>{{job.name}} : {{job.prettyDone}}</label></li>
+                        </ul>
                     </div>
                 </div>
 

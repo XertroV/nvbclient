@@ -18,10 +18,9 @@ def main(global_config, **settings):
     config.add_static_view('static', 'static', cache_max_age=3600)
     config.add_route('home', '/')
     config.add_route('key_details', '/details')
-    config.add_route('update_utxos', '/update_utxos')
-    config.add_route('admin', '/admin')
-    config.add_route('initialize_network', '/initialize_network')
-
+    config.add_route('update_utxos', '/update_utxos.json')
+    config.add_route('sign_vote', '/sign_vote.json')
+    config.add_route('initialize_network', '/initialize_network.json')
     config.add_route('check_password', '/check_password.json')
     config.add_route('change_password', '/change_password.json')
     config.scan()

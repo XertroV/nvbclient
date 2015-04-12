@@ -7,6 +7,9 @@
         login.reset = function(){
             login.authenticated = false;
             login.password = '';
+            login.address = '';
+            login.n_utxos = 0;
+            login.balance = 0;
         };
         login.reset();
 
@@ -17,6 +20,8 @@
                     if (data.result == true){
                         login.authenticated = true;
                         login.address = data.address;
+                        login.n_utxos = data.n_utxos;
+                        login.balance = data.balance;
                     } else {
                         login.reset();
                     }
@@ -75,7 +80,7 @@
                 cpwCtrl.error.message = 'New Passwords Do Not Match.'
                 return false;
             } else {
-                $http.post('/change_password.json', {old_password: cpwCtrl.oldPassword, new_password: cpwCtrl.newPassword}).
+                $http.post('/change_password.json', {password: cpwCtrl.oldPassword, new_password: cpwCtrl.newPassword}).
                     success(function(data){
                         if (data.result = true){
                             cpwCtrl.success.status = true;
@@ -113,4 +118,66 @@
         resCtrl.name = '';
         resCtrl.url = '';
     });
+
+    app.controller('BatchJobController', ['$http', '$scope', '$log', function($http, $scope, $log){
+        var jobs = this;
+
+        jobs.jobs = [
+            {
+                name: "update_utxos",
+                start: function () {
+                    jobs.jobs[0].prettyDone = 'running';
+                    $http.post('/update_utxos.json', {password: $scope.login.password}).
+                        success(function(data){
+                            if (data.updated){
+                                jobs.jobs[0].prettyDone = 'done';
+                                jobs.jobs[0].done = true;
+                                $scope.login.n_utxos = data.n_utxos;
+                                $scope.login.balance = data.balance;
+                            } else {
+                                jobs.jobs[0].prettyDone = 'error';
+                                $log.log(data);
+                            }
+                        }).
+                        error(function(error,some,other,stuff){
+                            jobs.jobs[0].prettyDone = 'error';
+                            $log.log(jobs.jobs[0].prettyDone);
+                        });
+                },
+                done: false,
+                prettyDone: 'waiting',
+            }
+        ];
+
+        jobs.all = function(){return jobs.jobs;}
+
+        var starter = function(f){
+            $log.log('a');
+            if($scope.login.authenticated){f();}
+            else{setTimeout(function(){starter(f)}, 500);}
+        }
+
+        jobs.jobs.forEach(function(job){
+            starter(job.start);
+        });
+    }]);
+
+    app.controller('NewNetworkController', ['$http', '$scope', function($http, $scope){
+        var newCtrl = this;
+
+        newCtrl.name = '';
+        newCtrl.status = false;
+        newCtrl.message = '';
+
+        newCtrl.make = function(){
+            $http.post('/sign_vote.json', {password: $scope.login.password, vote: {type: 'new', params: {name: newCtrl.name}}}).
+                success(function(data){
+                    newCtrl.status = data.result;
+                    newCtrl.message = data.tx;
+                }).error(function(){
+                    newCtrl.status = true;
+                    newCtrl.message = 'error';
+                });
+        };
+    }]);
 })();

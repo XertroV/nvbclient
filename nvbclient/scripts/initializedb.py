@@ -25,7 +25,7 @@ from ..util import convert_se_bytes
 
 from ..crypto import gen_key_from_salt_and_password
 
-from ..constants import ENDIAN, USE_COMPRESSED, PRIMARY
+from ..constants import ENDIAN, USE_COMPRESSED, PRIMARY, NET_CODE
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
@@ -56,7 +56,7 @@ def main(argv=sys.argv):
 
     secret_exponent_bytes = os.urandom(32)
     secret_exponent = convert_se_bytes(secret_exponent_bytes)
-    address = Key(secret_exponent=secret_exponent).address(use_uncompressed=USE_COMPRESSED)
+    address = Key(secret_exponent=secret_exponent, netcode=NET_CODE['testnet' if settings.testnet else 'bitcoin']).address(use_uncompressed=USE_COMPRESSED)
 
     with transaction.manager:
         model = KeyStore(name=PRIMARY, encrypted=f.encrypt(secret_exponent_bytes),

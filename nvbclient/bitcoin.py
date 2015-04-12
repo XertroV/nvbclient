@@ -1,15 +1,26 @@
 from pycoin.key import Key
+from pycoin.tx.tx_utils import create_tx, sign_tx
+from pycoin.services.blockchain_info import spendables_for_address, send_tx
+from pycoin.tx.TxOut import TxOut
+from pycoin.tx.Tx import Tx
+from pycoin.tx.pay_to.ScriptNulldata import ScriptNulldata
 
 from blockchain import blockexplorer, pushtx as bc_pushtx # todo: add redundancy
+from blockchain.exceptions import APIException
 
 from binascii import unhexlify
 
-from .constants import ENDIAN
-from .models import DBSession
+from .constants import ENDIAN, PRIMARY
+from .models import DBSession, KeyStore, UTXOs
+from .auth import get_private_key
 
 
 def bitcoin_key_from_bytes(key: bytes, testnet=False):
     return Key(secret_exponent=int.from_bytes(key, ENDIAN), testnet=testnet)
+
+
+def get_address_for_key(name=PRIMARY):
+    return DBSession.query(KeyStore).filter(KeyStore.name == name).first().address
 
 
 def get_utxos_for_address(address, testnet=False):
@@ -22,8 +33,12 @@ def get_utxos_for_address(address, testnet=False):
 
 
 def update_utxos():
-    address = DBSession.query(KeyStore).filter(KeyStore.name == 'primary').first().address
-    for output in blockexplorer.get_unspent_outputs(address):
+    address = DBSession.query(KeyStore).filter(KeyStore.name == PRIMARY).first().address
+    try:
+        outputs = blockexplorer.get_unspent_outputs(address)
+    except APIException as e:
+        outputs = [];
+    for output in outputs:
         d = dict(output.__dict__)
         d['tx_hash'] = unhexlify(d['tx_hash'])
         d['script'] = unhexlify(d['script'])
@@ -31,12 +46,35 @@ def update_utxos():
         del(d['tx_index'], d['value_hex'])
         if 0 == len(DBSession.query(UTXOs).filter(UTXOs.tx_hash == d['tx_hash'], UTXOs.tx_output_n == d['tx_output_n']).all()):
             DBSession.add(UTXOs(**d))
+    return len(outputs);
+
+
+def total_balance():
+    utxos = DBSession.query(UTXOs).all()
+    balance = sum(map(lambda u : u.value, utxos))
+    return balance
+
+
+def create_stock_tx(user=PRIMARY):
+    address = get_address_for_key(user)
+    tx = create_tx(spendables_for_address(address), [address], fee=10000)
+    return tx
+
+def mix_nulldata_into_tx(nulldata, tx):
+    print(tx.txs_out[0])
+    tx.txs_out.insert(0, TxOut(0, ScriptNulldata(nulldata).script()))
+    print(tx.txs_out[0])
+    return tx
+
+def make_signed_tx_from_vote(vote, password, user=PRIMARY):
+    key = get_private_key(password, user)
+    tx = mix_nulldata_into_tx(vote.to_bytes(), create_stock_tx(user))
+    sign_tx(tx, [key.wif()])
+    return tx
 
 
 def pushtx(tx, testnet=False):
     """tx should be hex encoded"""
-    if not testnet:
-        return bc_pushtx.pushtx(tx)
+    #return send_tx(tx)
+    return None  # disable for the moment
 
-
-#def tx_from_
