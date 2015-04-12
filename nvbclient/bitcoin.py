@@ -1,17 +1,22 @@
 from pycoin.key import Key
 
-from blockchain import blockexplorer, pushtx  # todo: add redundancy
+from blockchain import blockexplorer, pushtx as bc_pushtx # todo: add redundancy
 
 from binascii import unhexlify
 
 from .constants import ENDIAN
-
-def bitcoin_key_from_bytes(key: bytes):
-    return Key(secret_exponent=int.from_bytes(key, ENDIAN))
+from .models import DBSession
 
 
-def get_utxos_for_address(address):
-    r = blockexplorer.get_unspent_outputs(address)
+def bitcoin_key_from_bytes(key: bytes, testnet=False):
+    return Key(secret_exponent=int.from_bytes(key, ENDIAN), testnet=testnet)
+
+
+def get_utxos_for_address(address, testnet=False):
+    if testnet:
+        r = []
+    else:
+        r = blockexplorer.get_unspent_outputs(address)
     assert type(r) == list
     return r
 
@@ -28,6 +33,10 @@ def update_utxos():
             DBSession.add(UTXOs(**d))
 
 
-def pushtx(tx):
+def pushtx(tx, testnet=False):
     """tx should be hex encoded"""
-    return pushtx.pushtx(tx)
+    if not testnet:
+        return bc_pushtx.pushtx(tx)
+
+
+#def tx_from_

@@ -1,10 +1,32 @@
-@import url(//fonts.googleapis.com/css?family=Open+Sans:300,400,600,700);
 body {
   font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 300;
   color: #ffffff;
   background: #bc2131;
 }
+
+.logio {
+    min-width: 90px;
+}
+
+.navbar-nav li a.active {
+    background: #ddd;
+}
+
+.inner-tab {
+    padding: 0px 20px 0px 20px;
+}
+
+#navbar ul li {
+    font-weight: 600;
+}
+
+.resolution {
+    font-family: 'monospace';
+    text-transform: uppercase;
+}
+
+
 h1,
 h2,
 h3,
@@ -26,66 +48,66 @@ p {
 .font-bold {
   font-weight: 700;
 }
-.starter-template {
-  margin-top: 250px;
+.house-all {
+  margin-top: 30px;
 }
-.starter-template .content {
+.house-all .content {
   margin-left: 10px;
 }
-.starter-template .content h1 {
+.house-all .content h1 {
   margin-top: 10px;
   font-size: 60px;
 }
-.starter-template .content h1 .smaller {
+.house-all .content h1 .smaller {
   font-size: 40px;
   color: #f2b7bd;
 }
-.starter-template .content .lead {
+.house-all .content .lead {
   font-size: 25px;
   color: #f2b7bd;
 }
-.starter-template .content .lead .font-normal {
+.house-all .content .lead .font-normal {
   color: #ffffff;
 }
-.starter-template .links {
+.house-all .links {
   float: right;
   right: 0;
   margin-top: 125px;
 }
-.starter-template .links ul {
+.house-all .links ul {
   display: block;
   padding: 0;
   margin: 0;
 }
-.starter-template .links ul li {
+.house-all .links ul li {
   list-style: none;
   display: inline;
   margin: 0 10px;
 }
-.starter-template .links ul li:first-child {
+.house-all .links ul li:first-child {
   margin-left: 0;
 }
-.starter-template .links ul li:last-child {
+.house-all .links ul li:last-child {
   margin-right: 0;
 }
-.starter-template .links ul li.current-version {
+.house-all .links ul li.current-version {
   color: #f2b7bd;
   font-weight: 400;
 }
-.starter-template .links ul li a {
+.house-all .links ul li a {
   color: #ffffff;
 }
-.starter-template .links ul li a:hover {
+.house-all .links ul li a:hover {
   text-decoration: underline;
 }
-.starter-template .links ul li .icon-muted {
+.house-all .links ul li .icon-muted {
   color: #eb8b95;
   margin-right: 5px;
 }
-.starter-template .links ul li:hover .icon-muted {
+.house-all .links ul li:hover .icon-muted {
   color: #ffffff;
 }
-.starter-template .copyright {
+.house-all .copyright {
   margin-top: 10px;
   font-size: 0.9em;
   color: #f2b7bd;
@@ -94,59 +116,59 @@ p {
   right: 0;
 }
 @media (max-width: 1199px) {
-  .starter-template .content h1 {
+  .house-all .content h1 {
     font-size: 45px;
   }
-  .starter-template .content h1 .smaller {
+  .house-all .content h1 .smaller {
     font-size: 30px;
   }
-  .starter-template .content .lead {
+  .house-all .content .lead {
     font-size: 20px;
   }
 }
 @media (max-width: 991px) {
-  .starter-template {
+  .house-all {
     margin-top: 0;
   }
-  .starter-template .logo {
+  .house-all .logo {
     margin: 40px auto;
   }
-  .starter-template .content {
+  .house-all .content {
     margin-left: 0;
     text-align: center;
   }
-  .starter-template .content h1 {
+  .house-all .content h1 {
     margin-bottom: 20px;
   }
-  .starter-template .links {
+  .house-all .links {
     float: none;
     text-align: center;
     margin-top: 60px;
   }
-  .starter-template .copyright {
+  .house-all .copyright {
     float: none;
     text-align: center;
   }
 }
 @media (max-width: 767px) {
-  .starter-template .content h1 .smaller {
+  .house-all .content h1 .smaller {
     font-size: 25px;
     display: block;
   }
-  .starter-template .content .lead {
+  .house-all .content .lead {
     font-size: 16px;
   }
-  .starter-template .links {
+  .house-all .links {
     margin-top: 40px;
   }
-  .starter-template .links ul li {
+  .house-all .links ul li {
     display: block;
     margin: 0;
   }
-  .starter-template .links ul li .icon-muted {
+  .house-all .links ul li .icon-muted {
     display: none;
   }
-  .starter-template .copyright {
+  .house-all .copyright {
     margin-top: 20px;
   }
 }

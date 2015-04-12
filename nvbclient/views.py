@@ -1,7 +1,11 @@
 from pyramid.response import Response
 from pyramid.view import view_config
 
+from cryptography.fernet import Fernet
+
 from sqlalchemy.exc import DBAPIError
+
+import json
 
 from .models import (
     DBSession,
@@ -10,6 +14,13 @@ from .models import (
 
 from .bitcoin import update_utxos
 
+from .auth import check_password, get_private_bytes, set_private_bytes, get_key_store
+
+from .constants import PRIMARY
+
+def prep_json_dump(d):
+    return {'to_dump': d, 'json': json}
+
 
 @view_config(route_name='update_utxos', renderer='templates/update_utxos.pt')
 def update_utxos_view(request):
@@ -17,7 +28,7 @@ def update_utxos_view(request):
     return {'updating': True}
 
 
-@view_config(route_name='home', renderer='templates/mytemplate.pt')
+@view_config(route_name='home', renderer='templates/index.pt')
 def my_view(request):
     try:
         one = DBSession.query(KeyStore).filter(KeyStore.name == 'primary').first()
@@ -35,10 +46,29 @@ def key_details_view(request):
 def admin_view(request):
     return {}
 
-@view_config(route_name='initialize_network', renderer='templates/dump_dict.pt')
+@view_config(route_name='initialize_network', renderer='templates/json.pt')
 def admin_initialize_network_view(request):
+    return {'to_dump': {'tx': ''}, 'json': json}
 
-    return {'dict': {}}
+@view_config(route_name='check_password', renderer='templates/json.pt')
+def check_password_view(request):
+    password = bytes(request.json_body['password'].encode())
+    pw_correct = check_password(password)
+    if pw_correct:
+        return prep_json_dump({'result': pw_correct, 'address': get_key_store().address})
+    return prep_json_dump({'result': False})
+
+@view_config(route_name='change_password', renderer='templates/json.pt')
+def change_password_view(request):
+    old_password = bytes(request.json_body['old_password'].encode())
+    new_password = bytes(request.json_body['new_password'].encode())
+
+    try:
+        set_private_bytes(new_password, get_private_bytes(old_password))
+    except Exception as e:
+        return prep_json_dump({'result': False, 'message': 'Password change failed: %s' % e})
+
+    return prep_json_dump({'result': True, 'message': 'Changed Password Successfully'})
 
 conn_err_msg = """\
 Pyramid is having a problem using your SQL database.  The problem

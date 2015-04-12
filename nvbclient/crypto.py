@@ -32,5 +32,4 @@ def make_key(kdf, password: bytes):
 
 def gen_key_from_salt_and_password(salt, password):
   # keys in `cryptography` are base64
-  return b64encode(make_key(kdf_from_salt(salt), b''))
-
+  return b64encode(make_key(kdf_from_salt(salt), password))

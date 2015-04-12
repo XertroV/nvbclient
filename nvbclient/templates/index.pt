@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="${request.locale_name}" ng-app="nvbApp">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="pyramid web application">
+    <meta name="author" content="Pylons Project">
+    <link rel="shortcut icon" href="${request.static_url('nvbclient:static/pyramid-16x16.png')}">
+
+    <title>Alchemy Scaffold for The Pyramid Web Framework</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="${request.static_url('nvbclient:static/bootstrap.css')}" rel="stylesheet">
+    <!-- Custom styles for this scaffold -->
+    <link href="${request.static_url('nvbclient:static/theme.css')}" rel="stylesheet">
+
+    <script src="${request.static_url('nvbclient:static/angular.js')}" type="text/javascript"></script>
+    <script src="${request.static_url('nvbclient:static/validate.js')}" type="text/javascript"></script>
+    <script src="${request.static_url('nvbclient:static/jquery-2.1.3.js')}" type="text/javascript"></script>
+
+    <script src="${request.static_url('nvbclient:static/nvb.js')}" type="text/javascript"></script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="${request.static_url('nvbclient:static/html5shiv.js')}"></script>
+    <script src="${request.static_url('nvbclient:static/respond.js')}"></script>
+    <![endif]-->
+  </head>
+
+  <body ng-controller="LoginController as login">
+
+    <div class="house-all">
+
+      <div class="container" ng-controller="TabController as tab">
+
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">NVB Client</a>
+                </div>
+                <div id="navbar" class="navbar-collapse collapse">
+                    <ul class="nav navbar-nav">
+                        <li ng-repeat="name in tab.tabsLeft">
+                            <a href="#" ng-class="{active: tab.is(name)}" ng-click="tab.set(name)">{{name | uppercase}}</a>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li ng-repeat="name in tab.tabsRight">
+                            <a href="#" ng-class="{active: tab.is(name)}" ng-click="tab.set(name)">{{name |     uppercase}}</a>
+                        </li>
+                        <li class="logio" ng-show="login.authenticated"><a href="#" ng-click="login.reset()">Log Out</a></li>
+                        <li class="logio" ng-hide="login.authenticated"><a href="#">Log In</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+            <div ng-hide="login.authenticated">
+                <div class="row">
+                    <div class="col-md-12 content">
+                        <h1>Log in</h1><hr>
+                        <div class="col-md-2"></div>
+                        <div class="col-md-8">
+                            <form>
+                                <div class="form-group">
+                                    <input type="password" autofocus class="form-control" name="password" ng-model="login.password">
+                                </div>
+                                <button class="btn" ng-click="login.tryPassword(login.password)">Authenticate</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div ng-show="login.authenticated">
+
+                <div class="row">
+                    <div class="col-md-12">
+
+
+                        <div class="content" ng-show="tab.is('info')">
+                            <h1>Info</h1><hr>
+                            <div class="col-md-2"></div>
+                            <div class="col-md-8">
+                                <h3>Public ID</h3><hr>
+                                <h4>{{login.address}}</h4>
+                                Votes Remaining: {{999}} <span class="pull-right"><a href="#">Get More</a></span>
+                            </div>
+                        </div>
+
+
+                        <div class="content" ng-show="tab.is('vote')">
+                            <h1>Vote</h1><hr>
+                            <div class="col-md-2"></div>
+                            <div class="col-md-8">
+
+                                <h3>Cast Vote</h3><hr>
+                                <form name="voteForm" ng-controller="VoteController as voteCtrl">
+                                    <div class="form-group">
+                                        <label for="resolution">Resolution:</label>
+                                        <input type="text" id="resolution" ng-model="resolution" class="resolution form-control"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="vote-slider">Vote: {{voteCtrl.asPercentage() | number: 1}}% Yes, {{100.0 - voteCtrl.asPercentage() | number: 1}}% No, as number: {{voteCtrl.voteNumber}}</label>
+                                        <div class="input-group input-group-lg">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-danger" ng-click="voteCtrl.voteNumber=0;">NO</button>
+                                            </span>
+                                            <input type="range" min=0 max=255 id="vote-slider" ng-model="voteCtrl.voteNumber" class="form-control">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-success" ng-click="voteCtrl.voteNumber=255;">YES</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button class="btn btn-lg btn-default" ng-click="voteCtrl.voteNow()"><strong>Vote {{voteCtrl.asPercentage() | number: 1}}% Yes, {{100.0 - voteCtrl.asPercentage() | number: 1}}% No on {{resolution}}</strong></button>
+                                    </div>
+                                </form>
+
+                                <h3>Delegate</h3><hr>
+                                <form name="delegateForm" ng-controller="DelegateController as dlgCtrl">
+                                    <div class="form-group">
+                                        <label for="delegate-address">Chosen Delegate Public ID:</label>
+                                        <input class="form-control" type="text" id="delegate-address" ng-model="dlgCtrl.delegateAddress">
+                                    </div>
+                                    <div class="text-center">
+                                        <button class="btn btn-lg btn-default" ng-click="dlgCtrl.setDelegate()"><strong>Set Delegate to {{dlgCtrl.delegateAddress}}</strong></button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+
+                        <div class="content" ng-show="tab.is('admin')">
+                            <h1>Admin</h1><hr>
+                            <div class="col-md-2"></div>
+                            <div class="col-md-8">
+
+                            </div>
+                        </div>
+
+
+                        <div class="content" ng-show="tab.is('settings')">
+                            <h1>Settings</h1><hr>
+                            <div class="col-md-2"></div>
+                            <div class="col-md-8">
+
+                                <h3>Change Password</h3><hr>
+                                <form name="changePW" novalidate ng-controller="ChangePasswordController as cpwCtrl">
+                                    <div class="form-group">
+                                        <label for="oldpw">Old Password:</label>
+                                        <input type="password" value='' name="oldpw" id="oldpw" ng-model="oldPassword" class="form-control" />
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="new_password">New Password:</label>
+                                        <input type="password" value='' name="new_password" id="new_password" ng-model="newPassword" class="form-control"/>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="confirm_password">New Password: (confirm)</label>
+                                        <input type="password" value='' name="confirm_password" id="confirm_password" ng-model="newPasswordConf" class="form-control"/>
+                                    </div>
+                                    <button ng-click="cpwCtrl.changePassword(login.password, oldPassword, newPassword, newPasswordConf)" class="btn btn-standard">Change Password</button>
+                                    <p>
+                                        <div class="alert alert-danger" role="alert" ng-show="cpwCtrl.error.status">
+                                            {{cpwCtrl.error.message}}
+                                        </div>
+                                        <div class="alert alert-success" role="alert" ng-show="cpwCtrl.success.status">
+                                            {{cpwCtrl.success.message}}
+                                        </div>
+                                    </p>
+                                </form>
+
+                            </div>
+                        </div>
+
+
+                        <div class="content" ng-show="tab.is('about')">
+                            <h1>About</h1><hr>
+                            <div class="col-md-2"></div>
+                            <div class="col-md-8">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+      </div>
+    </div>
+  </body>
+</html>

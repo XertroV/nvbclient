@@ -21,9 +21,11 @@ from ..models import (
     Base,
     )
 
+from ..util import convert_se_bytes
+
 from ..crypto import gen_key_from_salt_and_password
 
-from ..constants import ENDIAN, USE_COMPRESSED
+from ..constants import ENDIAN, USE_COMPRESSED, PRIMARY
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
@@ -49,14 +51,14 @@ def main(argv=sys.argv):
     password = bytes(input("If you would like to set a password, please enter it now. Otherwise, just press enter. > ").encode())
     
     # initial password is the empty string
-    enc_key = gen_key_from_salt_and_password(salt, b'')
+    enc_key = gen_key_from_salt_and_password(salt, password)
+    f = Fernet(enc_key)
 
     secret_exponent_bytes = os.urandom(32)
-    secret_exponent = int.from_bytes(secret_exponent_bytes, ENDIAN)
+    secret_exponent = convert_se_bytes(secret_exponent_bytes)
     address = Key(secret_exponent=secret_exponent).address(use_uncompressed=USE_COMPRESSED)
-    
-    f = Fernet(key)
+
     with transaction.manager:
-        model = KeyStore(name='primary', encrypted=f.encrypt(secret_exponent_bytes),
+        model = KeyStore(name=PRIMARY, encrypted=f.encrypt(secret_exponent_bytes),
                          salt=salt, address=address)
         DBSession.add(model)
