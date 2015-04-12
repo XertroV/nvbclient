@@ -115,7 +115,7 @@
                                         </div>
                                     </div>
                                     <div class="text-center">
-                                        <button class="btn btn-lg btn-default" ng-click="voteCtrl.voteNow()"><strong>Vote {{voteCtrl.asPercentage() | number: 1}}% Yes, {{100.0 - voteCtrl.asPercentage() | number: 1}}% No on {{resolution}}</strong></button>
+                                        <button class="btn btn-lg btn-default" ng-click="voteCtrl.voteNow()"><strong>Vote {{voteCtrl.asPercentage() | number: 1}}% Yes, {{100.0 - voteCtrl.asPercentage() | number: 1}}% No on {{resolution | uppercase}}</strong></button>
                                     </div>
                                 </form>
 
@@ -156,13 +156,26 @@
                                 </form>
 
                                 <h3>Empower</h3><hr>
+                                <div ng-controller="EmpowerController as empCtrl">
+                                    <form>
+                                        <div class="form-group">
+                                            <label for="empower-address">Empower This Public ID:</label>
+                                            <input type="text" id="empower-address" class="form-control" ng-model="empCtrl.address">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="empower-votes">Assign this many votes:</label>
+                                            <input type="number" id="empower-votes" class="form-control" ng-model="empCtrl.votes">
+                                        </div>
+                                        <button class="btn btn-lg btn-default">Empower {{empCtrl.address}} with {{empCtrl.votes}} votes.</button>
+                                    </form>
+                                </div>
 
                                 <h3>Create New Network</h3><hr>
                                 <div ng-controller="NewNetworkController as newCtrl">
                                     <form>
                                         <div class="form-group">
                                             <label for="new-name">New Network Name:</label>
-                                            <input type="text" id="new-name" ng-model="newCtrl.name">
+                                            <input type="text" id="new-name" ng-model="newCtrl.name" class="form-control">
                                         </div>
                                         <button class="btn btn-lg" ng-click="newCtrl.make()">Create New Network Named {{newCtrl.name}}</button>
                                     </form>

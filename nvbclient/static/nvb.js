@@ -180,4 +180,10 @@
                 });
         };
     }]);
+
+    app.controller('EmpowerController', ['$http', function($http){
+        var empCtrl = this;
+        empCtrl.votes = 0;
+        empCtrl.address = '';
+    }]);
 })();

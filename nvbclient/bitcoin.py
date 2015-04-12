@@ -34,6 +34,7 @@ def get_utxos_for_address(address, testnet=False):
 
 def update_utxos():
     address = DBSession.query(KeyStore).filter(KeyStore.name == PRIMARY).first().address
+    DBSession.query(UTXOs).delete()
     try:
         outputs = blockexplorer.get_unspent_outputs(address)
     except APIException as e:
