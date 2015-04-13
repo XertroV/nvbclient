@@ -1,4 +1,10 @@
 (function(){
+    COIN = 100000000; // 100,000,000
+
+    createVote = function(type, params){
+        return {type: type, params: params}
+    };
+
     app = angular.module("nvbApp", [])
 
     app.controller("LoginController", ['$http', '$log', function($http, $log){
@@ -97,20 +103,59 @@
         }
     }]);
 
-    app.controller('VoteController', function(){
+    app.controller('VoteController', ['$http', '$scope', '$log', function($http, $scope, $log){
         var voteCtrl = this;
         voteCtrl.voteNumber = 0;
         voteCtrl.min = 0;
         voteCtrl.max = 255;
+        voteCtrl.resolution = 'RES-ID';
 
-        voteCtrl.asPercentage = function(){return voteCtrl.voteNumber / voteCtrl.max * 100};
-    })
+        voteCtrl.showTx = false;
+        voteCtrl.tx = '';
+        voteCtrl.loading = false;
 
-    app.controller('DelegateController', function(){
+        voteCtrl.asPercentage = function(){return voteCtrl.voteNumber / voteCtrl.max * 100;};
+
+        voteCtrl.make = function(){
+            voteCtrl.loading = true;
+            voteCtrl.showTx = false;
+            $http.post('/sign_vote.json', {password: $scope.login.password, vote: createVote('cast', { vote_number: voteCtrl.voteNumber, resolution: voteCtrl.resolution})}).
+                success(function(data){
+                    voteCtrl.showTx = true;
+                    voteCtrl.tx = data.tx;
+                    voteCtrl.loading = false;
+                }).
+                error(function(error,and,other,things){
+                    $log.log(error);
+                    voteCtrl.loading = false;
+                });
+        };
+    }]);
+
+    app.controller('DelegateController', ['$http', '$scope', '$log', function($http, $scope, $log){
         var dlgCtrl = this;
-        dlgCtrl.delegateAddress = '';
-        dlgCtrl.delegateClass = 0;
-    });
+        dlgCtrl.address = '';
+        dlgCtrl.categories = 255;  // currently unused but could provide some ways to mix and match delegation
+
+        dlgCtrl.loading = false;
+        dlgCtrl.tx = '';
+        dlgCtrl.showTx = false;
+
+        dlgCtrl.make = function(){
+            dlgCtrl.loading = true;
+            dlgCtrl.showTx = false;
+            $http.post('/sign_vote.json', {password: $scope.login.password, vote: createVote('delegate', {address: dlgCtrl.address, categories: dlgCtrl.categories})}).
+                success(function(data){
+                    dlgCtrl.showTx = true;
+                    dlgCtrl.tx = data.tx;
+                    dlgCtrl.loading = false;
+                }).
+                error(function(error,and,other,things){
+                    $log.log(error);
+                    dlgCtrl.loading = false;
+                });
+        };
+    }]);
 
     app.controller('ResolutionController', function(){
         var resCtrl = this;
@@ -152,7 +197,6 @@
         jobs.all = function(){return jobs.jobs;}
 
         var starter = function(f){
-            $log.log('a');
             if($scope.login.authenticated){f();}
             else{setTimeout(function(){starter(f)}, 500);}
         }
@@ -170,7 +214,7 @@
         newCtrl.message = '';
 
         newCtrl.make = function(){
-            $http.post('/sign_vote.json', {password: $scope.login.password, vote: {type: 'new', params: {name: newCtrl.name}}}).
+            $http.post('/sign_vote.json', {password: $scope.login.password, vote: createVote('new', {name: newCtrl.name})}).
                 success(function(data){
                     newCtrl.status = data.result;
                     newCtrl.message = data.tx;
@@ -185,5 +229,24 @@
         var empCtrl = this;
         empCtrl.votes = 0;
         empCtrl.address = '';
+    }]);
+
+    app.controller('InfoController', ['$http','$log', function($http, $log){
+        var info = this;
+        info.rate = 1;
+
+        info.setRate = function(r){
+            info.rate = r / COIN;
+        }
+        info.setRate(300);
+
+        $http.get('https://bitpay.com/api/rates').
+            success(function(data){
+                data.forEach(function(d){
+                    if(d.code == "AUD"){ info.setRate(d.rate); }
+                })
+            }).error(function(error,and,other,things){
+                $log.log(error);
+        });
     }]);
 })();

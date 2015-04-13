@@ -89,6 +89,7 @@ def change_password_view(request):
 @auth
 def sign_vote_view(request):
     rjb = request.json_body
+    print(rjb)
     vote = instruction_lookup(rjb['vote']['type'])(**rjb['vote']['params'])
     stx = make_signed_tx_from_vote(vote, pw_from_r(request))
     #import pdb; pdb.set_trace()

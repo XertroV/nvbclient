@@ -16,8 +16,7 @@
     <link href="${request.static_url('nvbclient:static/theme.css')}" rel="stylesheet">
 
     <script src="${request.static_url('nvbclient:static/angular.js')}" type="text/javascript"></script>
-    <script src="${request.static_url('nvbclient:static/validate.js')}" type="text/javascript"></script>
-    <script src="${request.static_url('nvbclient:static/jquery-2.1.3.js')}" type="text/javascript"></script>
+    <!--<script src="${request.static_url('nvbclient:static/jquery-2.1.3.js')}" type="text/javascript"></script>-->
 
     <script src="${request.static_url('nvbclient:static/nvb.js')}" type="text/javascript"></script>
 
@@ -79,14 +78,19 @@
                     <div class="col-md-12">
 
 
-                        <div class="content" ng-show="tab.is('info')">
+                        <div class="content" ng-show="tab.is('info')" ng-controller="InfoController as info">
                             <h1>Info</h1><hr>
-                            <div class="col-md-2"></div>
-                            <div class="col-md-8">
+                            <div class="col-md-offset-2 col-md-8 row">
                                 <h3>Public ID</h3><hr>
                                 <h4>{{login.address}}</h4>
-                                Votes Remaining: {{login.balance / 10000}} <span class="pull-right"><a href="#">Get More</a></span><br>
-                                Unspent Outputs: {{login.n_utxos}}
+                                <div class="col-sm-8">
+                                    Votes Remaining: {{login.balance / 10000}}<br>
+                                    Unspent Outputs: {{login.n_utxos}}<br>
+                                    Approx cost of one vote: {{info.rate * 10000 | currency: '$': 3}}
+                                </div>
+                                <div class="col-sm-4">
+                                     <span class="pull-right"><button class="btn btn-default">Get More Votes</button></span>
+                                </div>
                             </div>
                         </div>
 
@@ -97,37 +101,44 @@
                             <div class="col-md-8">
 
                                 <h3>Cast Vote</h3><hr>
-                                <form name="voteForm" ng-controller="VoteController as voteCtrl">
-                                    <div class="form-group">
-                                        <label for="resolution">Resolution:</label>
-                                        <input type="text" id="resolution" ng-model="resolution" class="resolution form-control"/>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="vote-slider">Vote: {{voteCtrl.asPercentage() | number: 1}}% Yes, {{100.0 - voteCtrl.asPercentage() | number: 1}}% No, as number: {{voteCtrl.voteNumber}}</label>
-                                        <div class="input-group input-group-lg">
-                                            <span class="input-group-btn">
-                                                <button class="btn btn-danger" ng-click="voteCtrl.voteNumber=0;">NO</button>
-                                            </span>
-                                            <input type="range" min=0 max=255 id="vote-slider" ng-model="voteCtrl.voteNumber" class="form-control">
-                                            <span class="input-group-btn">
-                                                <button class="btn btn-success" ng-click="voteCtrl.voteNumber=255;">YES</button>
-                                            </span>
+                                <div ng-controller="VoteController as voteCtrl">
+                                    <form name="voteForm">
+                                        <div class="form-group">
+                                            <label for="resolution">Resolution:</label>
+                                            <input type="text" id="resolution" ng-model="voteCtrl.resolution" class="resolution form-control"/>
                                         </div>
-                                    </div>
-                                    <div class="text-center">
-                                        <button class="btn btn-lg btn-default" ng-click="voteCtrl.voteNow()"><strong>Vote {{voteCtrl.asPercentage() | number: 1}}% Yes, {{100.0 - voteCtrl.asPercentage() | number: 1}}% No on {{resolution | uppercase}}</strong></button>
-                                    </div>
-                                </form>
+                                        <div class="form-group">
+                                            <label for="vote-slider">Vote: {{voteCtrl.asPercentage() | number: 1}}% Yes, {{100.0 - voteCtrl.asPercentage() | number: 1}}% No, as number: {{voteCtrl.voteNumber}}</label>
+                                            <div class="input-group input-group-lg">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-danger" ng-click="voteCtrl.voteNumber=0;">NO</button>
+                                                </span>
+                                                <input type="range" min=0 max=255 id="vote-slider" ng-model="voteCtrl.voteNumber" class="form-control">
+                                                <span class="input-group-btn">
+                                                    <button class="btn btn-success" ng-click="voteCtrl.voteNumber=255;">YES</button>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="text-center">
+                                            <button class="btn btn-lg btn-default" ng-click="voteCtrl.make()"><strong>Vote {{voteCtrl.asPercentage() | number: 1}}% Yes, {{100.0 - voteCtrl.asPercentage() | number: 1}}% No on {{voteCtrl.resolution | uppercase}}</strong></button>
+                                        </div>
+                                    </form>
+                                    <p ng-show="voteCtrl.loading">Loading...</p>
+                                    <div ng-show="voteCtrl.showTx"><h4>Signed Tx</h4><pre>{{voteCtrl.tx}}</pre></div>
+                                </div>
 
                                 <h3>Delegate</h3><hr>
                                 <form name="delegateForm" ng-controller="DelegateController as dlgCtrl">
                                     <div class="form-group">
                                         <label for="delegate-address">Chosen Delegate Public ID:</label>
-                                        <input class="form-control" type="text" id="delegate-address" ng-model="dlgCtrl.delegateAddress">
+                                        <input class="form-control" type="text" id="delegate-address" ng-model="dlgCtrl.address">
                                     </div>
                                     <div class="text-center">
-                                        <button class="btn btn-lg btn-default" ng-click="dlgCtrl.setDelegate()"><strong>Set Delegate to {{dlgCtrl.delegateAddress}}</strong></button>
+                                        <button class="btn btn-lg btn-default" ng-click="dlgCtrl.make()"><strong>Set Delegate to {{dlgCtrl.address}}</strong></button>
                                     </div>
+
+                                    <p ng-show="dlgCtrl.loading">Loading...</p>
+                                    <div ng-show="dlgCtrl.showTx"><h4>Signed Tx</h4><pre>{{dlgCtrl.tx}}</pre></div>
                                 </form>
                             </div>
                         </div>
@@ -223,9 +234,24 @@
 
                         <div class="content" ng-show="tab.is('about')">
                             <h1>About</h1><hr>
-                            <div class="col-md-2"></div>
-                            <div class="col-md-8">
-
+                            <div class="row">
+                                <div class="col-md-offset-2 col-md-8">
+                                    <h3>Neutral Voting Bloc</h3><hr>
+                                    <p>The <strong>Neutral Voting Bloc</strong> will be a political party in Australia. Sitting members act as delegates for voters the party recognises and vote proportionally.</p>
+                                    <h3>Senate Preference Hack</h3><hr>
+                                    <p>SPH - everyone plays on GVT - everyone participates by default - since the NVB provides utility to other parties they should (by default) preference NVB highly.</p>
+                                </div>
+                            </div>
+                            <h1>FAQ</h1><hr>
+                            <div class="row">
+                                <div class="col-md-offset-2 col-md-8">
+                                    <h3>Why does voting cost money?</h3><hr>
+                                    <p>Voting takes place on a decentralized uncensorable database. Because this is a
+                                    database anyone can contribute to, there is inbuilt spam protection in the form of
+                                    tokens. Since these tokens are scarce and created at a fixed rate they acquire value
+                                    naturally. Unfortunately this means there is a non-negligible (but still small) cost
+                                    associated with voting.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -233,6 +259,7 @@
                 <div class="row">
                     <hr>
                     <div ng-controller="BatchJobController as jobs">
+                        <h5>Jobs &#8212;</h5>
                         <ul class="list-inline">
                             <li ng-repeat="job in jobs.jobs"><label>{{job.name}} : {{job.prettyDone}}</label></li>
                         </ul>
