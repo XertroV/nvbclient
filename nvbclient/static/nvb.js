@@ -1,8 +1,29 @@
 (function(){
-    COIN = 100000000; // 100,000,000
+    COIN = Math.pow(10, 8); // 100,000,000
 
     createVote = function(type, params){
         return {type: type, params: params}
+    };
+
+    setupVoteHoster = function($http, $scope, $log, host, type){
+        host.msg = ''
+        host.showMsg = false;
+        host.loading = false;
+
+        host.make = function(){
+            host.loading = true;
+            host.showMsg = false;
+            $http.post('/sign_vote.json', {password: $scope.login.password, vote: createVote(type, host.makeParams())})
+                .success(function(data){
+                    host.showMsg = true;
+                    host.msg = data.msg;
+                    host.loading = false;
+                })
+                .error(function(error,and,other,things){
+                    $log.log(error);
+                    host.loading = false;
+                });
+        }
     };
 
     app = angular.module("nvbApp", [])
@@ -14,6 +35,7 @@
             login.authenticated = false;
             login.password = '';
             login.address = '';
+            login.testnetAddress = '';
             login.n_utxos = 0;
             login.balance = 0;
         };
@@ -26,6 +48,7 @@
                     if (data.result == true){
                         login.authenticated = true;
                         login.address = data.address;
+                        login.testnetAddress = data.testnet_address
                         login.n_utxos = data.n_utxos;
                         login.balance = data.balance;
                     } else {
@@ -110,26 +133,11 @@
         voteCtrl.max = 255;
         voteCtrl.resolution = 'RES-ID';
 
-        voteCtrl.showTx = false;
-        voteCtrl.tx = '';
-        voteCtrl.loading = false;
-
         voteCtrl.asPercentage = function(){return voteCtrl.voteNumber / voteCtrl.max * 100;};
 
-        voteCtrl.make = function(){
-            voteCtrl.loading = true;
-            voteCtrl.showTx = false;
-            $http.post('/sign_vote.json', {password: $scope.login.password, vote: createVote('cast', { vote_number: voteCtrl.voteNumber, resolution: voteCtrl.resolution})}).
-                success(function(data){
-                    voteCtrl.showTx = true;
-                    voteCtrl.tx = data.tx;
-                    voteCtrl.loading = false;
-                }).
-                error(function(error,and,other,things){
-                    $log.log(error);
-                    voteCtrl.loading = false;
-                });
-        };
+        voteCtrl.makeParams = function(){return { vote_number: voteCtrl.voteNumber, resolution: voteCtrl.resolution};};
+
+        setupVoteHoster($http, $scope, $log, voteCtrl, 'cast');
     }]);
 
     app.controller('DelegateController', ['$http', '$scope', '$log', function($http, $scope, $log){
@@ -137,32 +145,26 @@
         dlgCtrl.address = '';
         dlgCtrl.categories = 255;  // currently unused but could provide some ways to mix and match delegation
 
-        dlgCtrl.loading = false;
-        dlgCtrl.tx = '';
-        dlgCtrl.showTx = false;
+        dlgCtrl.makeParams = function(){
+            return {address: dlgCtrl.address, categories: dlgCtrl.categories};
+        }
 
-        dlgCtrl.make = function(){
-            dlgCtrl.loading = true;
-            dlgCtrl.showTx = false;
-            $http.post('/sign_vote.json', {password: $scope.login.password, vote: createVote('delegate', {address: dlgCtrl.address, categories: dlgCtrl.categories})}).
-                success(function(data){
-                    dlgCtrl.showTx = true;
-                    dlgCtrl.tx = data.tx;
-                    dlgCtrl.loading = false;
-                }).
-                error(function(error,and,other,things){
-                    $log.log(error);
-                    dlgCtrl.loading = false;
-                });
-        };
+        setupVoteHoster($http, $scope, $log, dlgCtrl, 'delegate');
     }]);
 
-    app.controller('ResolutionController', function(){
+    app.controller('ResolutionController', ['$http', '$scope', '$log', function($http, $scope, $log){
         var resCtrl = this;
-        resCtrl.close = 0;
+        resCtrl.endTimestamp = 0;
         resCtrl.name = '';
         resCtrl.url = '';
-    });
+        resCtrl.categories = 255;
+
+        resCtrl.makeParams = function(){
+            return {end_timestamp: resCtrl.endTimestamp, resolution: resCtrl.name, url: resCtrl.url, categories: resCtrl.categories};
+        }
+
+        setupVoteHoster($http, $scope, $log, resCtrl, 'mod_res');
+    }]);
 
     app.controller('BatchJobController', ['$http', '$scope', '$log', function($http, $scope, $log){
         var jobs = this;
@@ -206,29 +208,24 @@
         });
     }]);
 
-    app.controller('NewNetworkController', ['$http', '$scope', function($http, $scope){
+    app.controller('NewNetworkController', ['$http', '$scope', '$log', function($http, $scope, $log){
         var newCtrl = this;
 
         newCtrl.name = '';
-        newCtrl.status = false;
-        newCtrl.message = '';
 
-        newCtrl.make = function(){
-            $http.post('/sign_vote.json', {password: $scope.login.password, vote: createVote('new', {name: newCtrl.name})}).
-                success(function(data){
-                    newCtrl.status = data.result;
-                    newCtrl.message = data.tx;
-                }).error(function(){
-                    newCtrl.status = true;
-                    newCtrl.message = 'error';
-                });
-        };
+        newCtrl.makeParams = function(){return {name: newCtrl.name};};
+
+        setupVoteHoster($http, $scope, $log, newCtrl, 'new')
     }]);
 
-    app.controller('EmpowerController', ['$http', function($http){
+    app.controller('EmpowerController', ['$http', '$scope', '$log', function($http, $scope, $log){
         var empCtrl = this;
         empCtrl.votes = 0;
         empCtrl.address = '';
+
+        empCtrl.makeParams = function(){return {votes: empCtrl.votes, address: empCtrl.address};};
+
+        setupVoteHoster($http, $scope, $log, empCtrl, 'empower');
     }]);
 
     app.controller('InfoController', ['$http','$log', function($http, $log){

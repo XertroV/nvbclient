@@ -82,7 +82,7 @@
                             <h1>Info</h1><hr>
                             <div class="col-md-offset-2 col-md-8 row">
                                 <h3>Public ID</h3><hr>
-                                <h4>{{login.address}}</h4>
+                                <h4>{{login.address}} <small>testnet: {{login.testnetAddress}}</small></h4>
                                 <div class="col-sm-8">
                                     Votes Remaining: {{login.balance / 10000}}<br>
                                     Unspent Outputs: {{login.n_utxos}}<br>
@@ -97,8 +97,7 @@
 
                         <div class="content" ng-show="tab.is('vote')">
                             <h1>Vote</h1><hr>
-                            <div class="col-md-2"></div>
-                            <div class="col-md-8">
+                            <div class="col-md-offset-2 col-md-8">
 
                                 <h3>Cast Vote</h3><hr>
                                 <div ng-controller="VoteController as voteCtrl">
@@ -120,11 +119,14 @@
                                             </div>
                                         </div>
                                         <div class="text-center">
-                                            <button class="btn btn-lg btn-default" ng-click="voteCtrl.make()"><strong>Vote {{voteCtrl.asPercentage() | number: 1}}% Yes, {{100.0 - voteCtrl.asPercentage() | number: 1}}% No on {{voteCtrl.resolution | uppercase}}</strong></button>
+                                            <button class="btn btn-lg btn-default" ng-click="voteCtrl.make()"><strong>Vote <span style="color:green;">{{voteCtrl.asPercentage() | number: 1}}% Yes</span>, <span style="color:red;">{{100.0 - voteCtrl.asPercentage() | number: 1}}% No</span> on {{voteCtrl.resolution | uppercase}}</strong></button>
                                         </div>
                                     </form>
-                                    <p ng-show="voteCtrl.loading">Loading...</p>
-                                    <div ng-show="voteCtrl.showTx"><h4>Signed Tx</h4><pre>{{voteCtrl.tx}}</pre></div>
+                                    <div ng-show="voteCtrl.loading">Loading...</div>
+                                    <div ng-show="voteCtrl.showMsg">
+                                        <h4>Signed Tx</h4>
+                                        <pre>{{voteCtrl.msg}}</pre>
+                                    </div>
                                 </div>
 
                                 <h3>Delegate</h3><hr>
@@ -137,8 +139,11 @@
                                         <button class="btn btn-lg btn-default" ng-click="dlgCtrl.make()"><strong>Set Delegate to {{dlgCtrl.address}}</strong></button>
                                     </div>
 
-                                    <p ng-show="dlgCtrl.loading">Loading...</p>
-                                    <div ng-show="dlgCtrl.showTx"><h4>Signed Tx</h4><pre>{{dlgCtrl.tx}}</pre></div>
+                                    <div ng-show="dlgCtrl.loading">Loading...</div>
+                                    <div ng-show="dlgCtrl.showMsg">
+                                        <h4>Signed Tx</h4>
+                                        <pre>{{dlgCtrl.msg}}</pre>
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -146,8 +151,9 @@
 
                         <div class="content" ng-show="tab.is('admin')">
                             <h1>Admin</h1><hr>
-                            <div class="col-md-2"></div>
-                            <div class="col-md-8">
+                            <div class="col-md-offset-2 col-md-8">
+
+                                <div class="alert alert-danger">WARNING: Most users should never need to touch this</div>
 
                                 <h3>Create / Modfiy Resolution</h3><hr>
                                 <form name="resolutionForm" ng-controller="ResolutionController as resCtrl">
@@ -160,10 +166,15 @@
                                         <input type="text" id="res-url" class="form-control" ng-model="resCtrl.url">
                                     </div>
                                     <div class="form-group">
-                                        <label for="res-close">Resolution End Timestamp:</label>
-                                        <input type="text" id="res-close" class="form-control" ng-model="resCtrl.close">
+                                        <label for="res-end-timestamp">Resolution End Timestamp:</label>
+                                        <input type="text" id="res-end-timestamp" class="form-control" ng-model="resCtrl.endTimestamp">
                                     </div>
-                                    <button class="btn btn-default">Set {{resCtrl.name | uppercase}}, closing on {{resCtrl.close | date: "yyyy-MM-dd HH:mm"}}</button>
+                                    <button class="btn btn-default" ng-click="resCtrl.make()">Set {{resCtrl.name | uppercase}}, closing on {{resCtrl.endTimestamp * 1000 | date: "yyyy-MM-dd HH:mm"}}</button>
+                                    <div ng-show="resCtrl.loading">Loading...</div>
+                                    <div ng-show="resCtrl.showMsg">
+                                        <h4>Signed Tx</h4>
+                                        <pre>{{resCtrl.msg}}</pre>
+                                    </div>
                                 </form>
 
                                 <h3>Empower</h3><hr>
@@ -177,7 +188,12 @@
                                             <label for="empower-votes">Assign this many votes:</label>
                                             <input type="number" id="empower-votes" class="form-control" ng-model="empCtrl.votes">
                                         </div>
-                                        <button class="btn btn-lg btn-default">Empower {{empCtrl.address}} with {{empCtrl.votes}} votes.</button>
+                                        <button class="btn btn-lg btn-default" ng-click="empCtrl.make()">Empower {{empCtrl.address}} with {{empCtrl.votes}} votes.</button>
+                                        <div ng-show="empCtrl.loading">Loading...</div>
+                                        <div ng-show="empCtrl.showMsg">
+                                            <h4>Signed Tx</h4>
+                                            <pre>{{empCtrl.msg}}</pre>
+                                        </div>
                                     </form>
                                 </div>
 
@@ -190,8 +206,10 @@
                                         </div>
                                         <button class="btn btn-lg" ng-click="newCtrl.make()">Create New Network Named {{newCtrl.name}}</button>
                                     </form>
-                                    <div ng-show="newCtrl.status">
-                                        {{newCtrl.message}}
+                                    <div ng-show="newCtrl.loading">Loading...</div>
+                                    <div ng-show="newCtrl.showMsg">
+                                        <h4>Signed Tx</h4>
+                                        <pre>{{newCtrl.msg}}</pre>
                                     </div>
                                 </div>
                             </div>

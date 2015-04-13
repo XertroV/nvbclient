@@ -23,6 +23,10 @@ def get_address_for_key(name=PRIMARY):
     return DBSession.query(KeyStore).filter(KeyStore.name == name).first().address
 
 
+def addr_to_testnet(addr):
+    return Key(hash160=Key.from_text(addr).hash160(), netcode='XTN').address()
+
+
 def get_utxos_for_address(address, testnet=False):
     if testnet:
         r = []

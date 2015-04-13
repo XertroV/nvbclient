@@ -2,6 +2,8 @@ import json
 
 from binascii import hexlify, unhexlify
 
+from pycoin.encoding import EncodingError
+
 from pyramid.httpexceptions import HTTPForbidden
 
 from pyramid.response import Response
@@ -16,7 +18,7 @@ from .models import (
     KeyStore,
     )
 
-from .bitcoin import update_utxos, total_balance, make_signed_tx_from_vote
+from .bitcoin import update_utxos, total_balance, make_signed_tx_from_vote, addr_to_testnet
 
 from .auth import check_password, get_private_bytes, set_private_bytes, get_key_store
 
@@ -60,17 +62,13 @@ def key_details_view(request):
   return prep_json_dump({'keys': [dict([(k, str(v)) if type(v) != bytes else (k, hexlify(v).decode()) for k,v in d.__dict__.items()]) for d in DBSession.query(KeyStore).all()]})
 
 
-@view_config(route_name='initialize_network', renderer='templates/json.pt')
-@auth
-def admin_initialize_network_view(request):
-    return prep_json_dump({'tx': ''})
-
 @view_config(route_name='check_password', renderer='templates/json.pt')
 def check_password_view(request):
     password = pw_from_r(request)
     pw_correct = check_password(password)
+    address = get_key_store().address
     if pw_correct:
-        return prep_json_dump({'result': pw_correct, 'address': get_key_store().address})
+        return prep_json_dump({'result': pw_correct, 'address': address, 'testnet_address': addr_to_testnet(address)})
     return prep_json_dump({'result': False})
 
 @view_config(route_name='change_password', renderer='templates/json.pt')
@@ -89,11 +87,14 @@ def change_password_view(request):
 @auth
 def sign_vote_view(request):
     rjb = request.json_body
-    print(rjb)
-    vote = instruction_lookup(rjb['vote']['type'])(**rjb['vote']['params'])
+    assert 'vote' in rjb
+    try:
+        vote = instruction_lookup(rjb['vote']['type'])(**rjb['vote']['params'])
+    except EncodingError as e:
+        return prep_json_dump({'result': False, 'msg': "Bad Address? -- " + str(e)})
     stx = make_signed_tx_from_vote(vote, pw_from_r(request))
     #import pdb; pdb.set_trace()
-    return prep_json_dump({'result': True, 'tx': stx.as_hex()})
+    return prep_json_dump({'result': True, 'msg': stx.as_hex()})
 
 conn_err_msg = """\
 Pyramid is having a problem using your SQL database.  The problem
