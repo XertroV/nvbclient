@@ -1,6 +1,14 @@
 nvb-client README
 ==================
 
+To do
+-----
+
+* persistent utxos
+* track votes (alert of dup?)
+* broadcast tx
+
+
 Getting Started
 ---------------
 
