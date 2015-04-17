@@ -215,7 +215,7 @@
 
         newCtrl.makeParams = function(){return {name: newCtrl.name};};
 
-        setupVoteHoster($http, $scope, $log, newCtrl, 'new')
+        setupVoteHoster($http, $scope, $log, newCtrl, 'create');
     }]);
 
     app.controller('EmpowerController', ['$http', '$scope', '$log', function($http, $scope, $log){

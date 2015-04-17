@@ -43,8 +43,10 @@ class Instruction:
         return self.PREFIX + self.op_code + self._extra_bytes
 
 
+# TODO: port references over to nvb_lib
 
-class NewNetwork(Instruction):
+
+class CreateNetwork(Instruction):
     """PREFIX[3] OP_CREATE[1] name[<20]"""
 
     def __init__(self, name):
@@ -117,7 +119,7 @@ class EmpowerVote(Instruction):
 
 
 instruction_map = {
-    'new': NewNetwork,
+    'create': CreateNetwork,
     'cast': CastVote,
     'delegate': DelegateVote,
     'mod_res': ModResolution,
