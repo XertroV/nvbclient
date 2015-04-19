@@ -6,12 +6,7 @@ from pycoin.encoding import EncodingError
 
 from pyramid.httpexceptions import HTTPForbidden
 
-from pyramid.response import Response
 from pyramid.view import view_config
-
-from cryptography.fernet import Fernet
-
-from sqlalchemy.exc import DBAPIError
 
 from .models import (
     DBSession,
@@ -22,9 +17,7 @@ from .bitcoin import update_utxos, total_balance, make_signed_tx_from_vote, addr
 
 from .auth import check_password, get_private_bytes, set_private_bytes, get_key_store
 
-from .constants import PRIMARY
-
-from .nvb_instructions import Instruction, NewNetwork, instruction_lookup
+from .nvb_instructions import instruction_lookup
 
 def prep_json_dump(d):
     return {'to_dump': d, 'json': json}
