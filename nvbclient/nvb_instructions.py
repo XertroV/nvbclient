@@ -26,6 +26,10 @@ def validate_hash160(h):
     assert type(h) == bytes
     assert len(h) == 20
 
+def validate_comment(c):
+    assert type(c) == bytes
+    assert len(c) <= 40
+
 
 def len_to_one_byte(i):
     return len(i).to_bytes(1, ENDIAN)
@@ -116,12 +120,24 @@ class EmpowerVote(Instruction):
         validate_hash160(self.hash160)
 
 
+class CommentNulldata(Instruction):
+    PREFIX = b''
+
+    def __init__(self, comment):
+        self.op_code = b''
+        self.comment = comment.encode()
+        self._extra_bytes = self.comment
+
+        validate_comment(self.comment)
+
+
 instruction_map = {
     'new': NewNetwork,
     'cast': CastVote,
     'delegate': DelegateVote,
     'mod_res': ModResolution,
     'empower': EmpowerVote,
+    'comment': CommentNulldata,
 }
 def instruction_lookup(i):
     return instruction_map.get(i)

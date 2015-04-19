@@ -145,6 +145,24 @@
                                         <pre>{{dlgCtrl.msg}}</pre>
                                     </div>
                                 </form>
+
+                                <!-- Always Last -->
+                                <h3>Comment</h3><hr>
+                                <form name="commentForm" ng-controller="CommentController as comment">
+                                    <div class="form-group">
+                                        <label for="input-comment">Comment on Blockchain:</label>
+                                        <input class="form-control" type="text" id="input-comment" ng-model="comment.text">
+                                    </div>
+                                    <div class="text-center">
+                                        <button class="btn btn-lg btn-default" ng-click="comment.make()">Post Comment to Blockchain</button>
+                                    </div>
+
+                                    <div ng-show="comment.loading">Loading...</div>
+                                    <div ng-show="comment.showMsg">
+                                        <h4>Signed Tx</h4>
+                                        <pre>{{comment.msg}}</pre>
+                                    </div>
+                                </form>
                             </div>
                         </div>
 

@@ -152,6 +152,17 @@
         setupVoteHoster($http, $scope, $log, dlgCtrl, 'delegate');
     }]);
 
+    app.controller('CommentController', ['$http', '$scope', '$log', function($http, $scope, $log){
+        var comment = this;
+        comment.text = '';
+
+        comment.makeParams = function(){
+            return {comment: comment.text};
+        }
+
+        setupVoteHoster($http, $scope, $log, comment, 'comment');
+    }]);
+
     app.controller('ResolutionController', ['$http', '$scope', '$log', function($http, $scope, $log){
         var resCtrl = this;
         resCtrl.endTimestamp = 0;
