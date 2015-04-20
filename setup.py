@@ -20,7 +20,13 @@ requires = [
     'cryptography',
     'pycoin',
     'blockchain',
+    'nvblib',
     ]
+
+dependency_links = [
+    'git+ssh://git@github.com:XertroV/nvblib.git',
+    'git+ssh://git@github.com:richardkiss/pycoin.git',
+]
 
 setup(name='nvb-client',
       version='0.0.1',
@@ -41,6 +47,7 @@ setup(name='nvb-client',
       zip_safe=False,
       test_suite='nvbclient',
       install_requires=requires,
+      dependency_links=dependency_links,
       entry_points="""\
       [paste.app_factory]
       main = nvbclient:main
