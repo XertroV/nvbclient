@@ -38,6 +38,7 @@
             login.testnetAddress = '';
             login.n_utxos = 0;
             login.balance = 0;
+            login.isDemo = false;
         };
         login.reset();
 
@@ -58,6 +59,14 @@
                 error(function(data, status, headers, config){
                     $log.log(data);
                     login.reset();
+                });
+
+            $http.get('/demo_test.json')
+                .success(function(data){
+                    login.isDemo = data['result'];
+                })
+                .error(function(error,and,other,things){
+                    $log.log(error);
                 });
         };
 

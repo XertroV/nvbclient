@@ -5,8 +5,9 @@ from binascii import hexlify, unhexlify
 from pycoin.encoding import EncodingError
 
 from pyramid.httpexceptions import HTTPForbidden
-
 from pyramid.view import view_config
+
+from nvblib import instruction_lookup
 
 from .models import (
     DBSession,
@@ -17,10 +18,6 @@ from .bitcoin import update_utxos, total_balance, make_signed_tx_from_vote, addr
 
 from .auth import check_password, get_private_bytes, set_private_bytes, get_key_store
 
-from .nvb_instructions import instruction_lookup
-
-def prep_json_dump(d):
-    return {'to_dump': d, 'json': json}
 
 def pw_from_r(r, i='password'):
     return bytes(r.json_body[i].encode())
@@ -35,13 +32,25 @@ def auth(f):
         return f(request, *args, **kwargs)
     return inner
 
+def disable_when_demo(f):
+    def inner(request, *args, **kwargs):
+        if request.registry.settings['demo_mode']:
+            return {'result': False, 'message': 'Disabled in demo mode.'}
+        return f(request, *args, **kwargs)
+    return inner
 
-@view_config(route_name='update_utxos', renderer='templates/json.pt')
+
+@view_config(route_name='demo_test', renderer='json')
+def demo_test_view(request):
+    return {'result': request.registry.settings['demo_mode']}
+
+
+@view_config(route_name='update_utxos', renderer='json')
 @auth
 def update_utxos_view(request):
     n_utxos = update_utxos()
     balance = total_balance()
-    return prep_json_dump({'updated': True, 'n_utxos': n_utxos, 'balance': balance})
+    return {'updated': True, 'n_utxos': n_utxos, 'balance': balance}
 
 
 @view_config(route_name='home', renderer='templates/index.pt')
@@ -49,34 +58,37 @@ def my_view(request):
     return {}
 
 
-@view_config(route_name='key_details', renderer='templates/json.pt')
+@view_config(route_name='key_details', renderer='json')
 @auth  # maybe this prevents information leaking?
 def key_details_view(request):
-  return prep_json_dump({'keys': [dict([(k, str(v)) if type(v) != bytes else (k, hexlify(v).decode()) for k,v in d.__dict__.items()]) for d in DBSession.query(KeyStore).all()]})
+  return {'keys': [dict([(k, str(v)) if type(v) != bytes else (k, hexlify(v).decode()) for k,v in d.__dict__.items()]) for d in DBSession.query(KeyStore).all()]}
 
 
-@view_config(route_name='check_password', renderer='templates/json.pt')
+@view_config(route_name='check_password', renderer='json')
 def check_password_view(request):
     password = pw_from_r(request)
     pw_correct = check_password(password)
     address = get_key_store().address
     if pw_correct:
-        return prep_json_dump({'result': pw_correct, 'address': address, 'testnet_address': addr_to_testnet(address)})
-    return prep_json_dump({'result': False})
+        return {'result': pw_correct, 'address': address, 'testnet_address': addr_to_testnet(address)}
+    return {'result': False}
 
-@view_config(route_name='change_password', renderer='templates/json.pt')
+@view_config(route_name='change_password', renderer='json')
+@disable_when_demo
 @auth
 def change_password_view(request):
+    if request.registry.settings['demo_mode']:
+        return {'result': False, 'message': 'Password change disabled in demo mode.'}
     old_password = pw_from_r(request)
     new_password = pw_from_r(request, 'new_password')
     try:
         set_private_bytes(new_password, get_private_bytes(old_password))
     except Exception as e:
-        return prep_json_dump({'result': False, 'message': 'Password change failed: %s' % e})
-    return prep_json_dump({'result': True, 'message': 'Changed Password Successfully'})
+        return {'result': False, 'message': 'Password change failed: %s' % e}
+    return {'result': True, 'message': 'Changed Password Successfully'}
 
 
-@view_config(route_name='sign_vote', renderer='templates/json.pt')
+@view_config(route_name='sign_vote', renderer='json')
 @auth
 def sign_vote_view(request):
     rjb = request.json_body
@@ -84,10 +96,10 @@ def sign_vote_view(request):
     try:
         vote = instruction_lookup(rjb['vote']['type'])(**rjb['vote']['params'])
     except EncodingError as e:
-        return prep_json_dump({'result': False, 'msg': "Bad Address? -- " + str(e)})
+        return {'result': False, 'msg': "Bad Address? -- " + str(e)}
     stx = make_signed_tx_from_vote(vote, pw_from_r(request))
     #import pdb; pdb.set_trace()
-    return prep_json_dump({'result': True, 'msg': stx.as_hex()})
+    return {'result': True, 'msg': stx.as_hex()}
 
 conn_err_msg = """\
 Pyramid is having a problem using your SQL database.  The problem

@@ -23,5 +23,6 @@ def main(global_config, **settings):
     config.add_route('initialize_network', '/initialize_network.json')
     config.add_route('check_password', '/check_password.json')
     config.add_route('change_password', '/change_password.json')
+    config.add_route('demo_test', '/demo_test.json')
     config.scan()
     return config.make_wsgi_app()

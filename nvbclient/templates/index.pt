@@ -80,6 +80,7 @@
 
                         <div class="content" ng-show="tab.is('info')" ng-controller="InfoController as info">
                             <h1>Info</h1><hr>
+                            <div class="alert alert-info" ng-show="login.isDemo">Demo Mode Active. Please don't broadcast TXs if you can avoid it.</div>
                             <div class="col-md-offset-2 col-md-8 row">
                                 <h3>Public ID</h3><hr>
                                 <h4>{{login.address}} <small>testnet: {{login.testnetAddress}}</small></h4>
@@ -89,7 +90,7 @@
                                     Approx cost of one vote: {{info.rate * 10000 | currency: '$': 3}}
                                 </div>
                                 <div class="col-sm-4">
-                                     <span class="pull-right"><button class="btn btn-default">Get More Votes</button></span>
+                                     <span class="pull-right"><button class="btn btn-default" disabled="true">Get More Votes</button></span>
                                 </div>
                             </div>
                         </div>
