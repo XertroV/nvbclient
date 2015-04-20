@@ -34,7 +34,7 @@ def auth(f):
 
 def disable_when_demo(f):
     def inner(request, *args, **kwargs):
-        if request.registry.settings['demo_mode']:
+        if request.registry.settings['demo_mode'] != "false":
             return {'result': False, 'message': 'Disabled in demo mode.'}
         return f(request, *args, **kwargs)
     return inner
@@ -42,7 +42,7 @@ def disable_when_demo(f):
 
 @view_config(route_name='demo_test', renderer='json')
 def demo_test_view(request):
-    return {'result': request.registry.settings['demo_mode']}
+    return {'result': request.registry.settings['demo_mode'] != "false"}
 
 
 @view_config(route_name='update_utxos', renderer='json')
@@ -77,7 +77,7 @@ def check_password_view(request):
 @disable_when_demo
 @auth
 def change_password_view(request):
-    if request.registry.settings['demo_mode']:
+    if request.registry.settings['demo_mode'] != "false":
         return {'result': False, 'message': 'Password change disabled in demo mode.'}
     old_password = pw_from_r(request)
     new_password = pw_from_r(request, 'new_password')

@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from pycoin.key import Key
 
 from .constants import MSG_PREFIX, ENDIAN
@@ -18,13 +16,16 @@ def validate_resolution(r):
     assert type(r) == bytes
     assert len(r) < 15
 
+
 def validate_url(u):
     assert type(u) == bytes
     assert len(u) < 15
 
+
 def validate_hash160(h):
     assert type(h) == bytes
     assert len(h) == 20
+
 
 def validate_comment(c):
     assert type(c) == bytes
@@ -33,6 +34,7 @@ def validate_comment(c):
 
 def len_to_one_byte(i):
     return len(i).to_bytes(1, ENDIAN)
+
 
 class Instruction:
     PREFIX = MSG_PREFIX
@@ -141,5 +143,7 @@ instruction_map = {
     'empower': EmpowerVote,
     'comment': CommentNulldata,
 }
+
+
 def instruction_lookup(i):
     return instruction_map.get(i)
