@@ -70,15 +70,6 @@
                 });
         };
 
-        login.changePassword = function(oldpw, newpw1, newpw2){
-            if(oldpw != login.password) return false;
-            if(newpw1 != newpw2) return false;
-            $http.post('/change_password.json', {password: newpw1}).
-                success(function(data){
-
-                });
-        }
-
         login.tryPassword();
     }]);
 
