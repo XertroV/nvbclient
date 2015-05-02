@@ -1,3 +1,8 @@
+import random
+import socket
+import json
+from time import time
+
 from pycoin.key import Key
 from pycoin.tx.tx_utils import create_tx, sign_tx
 from pycoin.services.blockchain_info import spendables_for_address, send_tx
@@ -10,7 +15,7 @@ from blockchain.exceptions import APIException
 
 from binascii import unhexlify
 
-from .constants import ENDIAN, PRIMARY
+from .constants import ENDIAN, PRIMARY, ELECTRUM_SERVERS
 from .models import DBSession, KeyStore, UTXOs
 from .auth import get_private_key
 
@@ -76,6 +81,25 @@ def make_signed_tx_from_vote(vote, password, user=PRIMARY):
     tx = mix_nulldata_into_tx(vote.to_bytes(), create_stock_tx(user))
     sign_tx(tx, [key.wif()])
     return tx
+
+
+def sendtx(hex_tx, testnet=False):
+    if testnet:
+        raise NotImplementedError()
+    try:
+        server = random.choice(list(ELECTRUM_SERVERS.items()))
+        s = socket.create_connection(server)
+        s.send(json.dumps({"id": "nvbclient-{}".format(time()), "method": "blockchain.transaction.broadcast", "params": [hex_tx]}).encode() + b'\n')
+        electrum_response = json.loads(s.recv(2048)[:-1].decode())  # the slice is to remove the trailing new line
+        return electrum_response
+    except ConnectionRefusedError as e:
+        print(e, server)
+    except socket.gaierror as e:
+        print(e, server)
+    except Exception as e:
+        print(e, server)
+        return {'error': str(e)}
+
 
 
 def pushtx(tx, testnet=False):

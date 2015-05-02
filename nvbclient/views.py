@@ -98,7 +98,6 @@ def sign_vote_view(request):
     except EncodingError as e:
         return {'result': False, 'msg': "Bad Address? -- " + str(e)}
     stx = make_signed_tx_from_vote(vote, pw_from_r(request))
-    #import pdb; pdb.set_trace()
     return {'result': True, 'msg': stx.as_hex()}
 
 conn_err_msg = """\
