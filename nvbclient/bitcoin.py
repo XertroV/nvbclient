@@ -84,6 +84,7 @@ def make_signed_tx_from_vote(vote, password, user=PRIMARY):
 
 
 def sendtx(hex_tx, testnet=False):
+    # TODO : TEST! Currently untested. Copypasted from opreturn.ninja
     if testnet:
         raise NotImplementedError()
     try:
@@ -104,6 +105,6 @@ def sendtx(hex_tx, testnet=False):
 
 def pushtx(tx, testnet=False):
     """tx should be hex encoded"""
-    #return send_tx(tx)
+    #return sendtx(tx)
     return None  # disable for the moment
 
