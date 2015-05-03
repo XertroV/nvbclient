@@ -69,7 +69,7 @@ def trim_spendables(spendables):
     last_trimmed = None
     # cut many spendables + one extra off so we can add it back at the end
     while len(spendables) >= 1 and sum((s.coin_value for s in spendables)) + MIN_FEE > DUST*2:
-        last_trimmed = max([(s.coin_value, s) for s in spendables])[1]
+        last_trimmed = random.choice([(s.coin_value, s) for s in spendables])[1]
         spendables.remove(last_trimmed)
     spendables.append(last_trimmed)
     return spendables
