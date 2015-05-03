@@ -22,3 +22,5 @@ ELECTRUM_SERVERS = {
     'electrum.thwg.org': 50001,  # good
     #'electrum.stepkrav.pw': 50001,
 }
+DUST = 5460
+MIN_FEE = 1000

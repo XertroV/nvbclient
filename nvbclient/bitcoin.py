@@ -10,12 +10,12 @@ from pycoin.tx.TxOut import TxOut
 from pycoin.tx.Tx import Tx
 from pycoin.tx.pay_to.ScriptNulldata import ScriptNulldata
 
-from blockchain import blockexplorer, pushtx as bc_pushtx # todo: add redundancy
+from blockchain import blockexplorer  # todo: add redundancy
 from blockchain.exceptions import APIException
 
 from binascii import unhexlify
 
-from .constants import ENDIAN, PRIMARY, ELECTRUM_SERVERS
+from .constants import ENDIAN, PRIMARY, ELECTRUM_SERVERS, DUST, MIN_FEE
 from .models import DBSession, KeyStore, UTXOs
 from .auth import get_private_key
 
@@ -65,9 +65,22 @@ def total_balance():
     return balance
 
 
-def create_stock_tx(user=PRIMARY):
+def trim_spendables(spendables):
+    last_trimmed = None
+    # cut many spendables + one extra off so we can add it back at the end
+    while len(spendables) >= 1 and sum((s.coin_value for s in spendables)) + MIN_FEE > DUST*2:
+        last_trimmed = max([(s.coin_value, s) for s in spendables])[1]
+        spendables.remove(last_trimmed)
+    spendables.append(last_trimmed)
+    return spendables
+
+
+def create_stock_tx(user=PRIMARY, use_smallest_spendables=True):
     address = get_address_for_key(user)
-    tx = create_tx(spendables_for_address(address), [address], fee=10000)
+    spendables = spendables_for_address(address)
+    if use_smallest_spendables:
+        spendables = trim_spendables(spendables)
+    tx = create_tx(spendables, [address], fee=10000)
     return tx
 
 def mix_nulldata_into_tx(nulldata, tx):
@@ -75,6 +88,7 @@ def mix_nulldata_into_tx(nulldata, tx):
     tx.txs_out.insert(0, TxOut(0, ScriptNulldata(nulldata).script()))
     print(tx.txs_out[0])
     return tx
+
 
 def make_signed_tx_from_vote(vote, password, user=PRIMARY):
     key = get_private_key(password, user)
