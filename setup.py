@@ -25,8 +25,9 @@ requires = [
 
 dependency_links = [
     'git+ssh://git@github.com:XertroV/nvblib.git',
-    'git+ssh://git@github.com:richardkiss/pycoin.git',
+    'git+ssh://git@github.com:richardkiss/pycoin.git',  # requires new op_return pull #123
 ]
+
 
 setup(name='nvb-client',
       version='0.0.1',
