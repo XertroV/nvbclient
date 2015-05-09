@@ -28,6 +28,10 @@
 
     app = angular.module("nvbApp", [])
 
+    app.config(function($httpProvider) {
+        delete $httpProvider.defaults.headers.common['X-Requested-With'];
+    });
+
     app.controller("LoginController", ['$http', '$log', function($http, $log){
         var login = this;
 
@@ -82,13 +86,21 @@
             request: function(){
                 login.ed.loading = true;
                 login.ed.showMsg = false;
-                $http.post('http://vote-explorer.xk.io:5500/empower_demo.json', {address: login.address})
+                $log.log({address: login.address});
+                $http({
+                    url: 'http://vote-explorer.xk.io:5500/empower_demo.json',
+                    data: {address: login.address},
+                    method: 'POST',
+                    headers:{'Content-type':'application/x-www-form-urlencoded'},
+                    })
                     .success(function(data){
                         login.ed.showMsg = true;
                         login.ed.loading = false;
                         login.ed.msg = data['result'];
                     })
-                    .error(function(data, status, headers, config){});
+                    .error(function(data, status, headers, config){
+                        $log.log(data);
+                    });
             },
             showMsg: false,
             loading: false,

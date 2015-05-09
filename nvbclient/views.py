@@ -57,7 +57,6 @@ saved_password = b'1234567890987654321234567890987654345678'
 def empower_demo_start_view(request):
     global saved_password
     saved_password = pw_from_r(request)
-    empower_demo_enabled = True
     print('Enabling Empower Demo')
     return {'result': saved_password.decode()}
 

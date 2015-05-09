@@ -94,12 +94,18 @@
                                          <span class="pull-right"><button class="btn btn-default" disabled="true">Get More Votes</button></span>
                                     </div>
                                 </div>
+
                                 <h3>Demo Network</h3><hr>
-                                <button class="btn btn-default" ng-click="login.ed.request()">Become Empowered (on demo network)</button>
+                                <div>
+                                    <button class="btn btn-default" ng-click="login.ed.request()">Become Empowered (on demo network)</button>
+                                </div>
                                 <div ng-show="login.ed.loading">Loading...</div>
                                 <div ng-show="login.ed.showMsg">
+                                    <h4>Signed Tx</h4>
                                     <pre>{{login.ed.msg}}</pre>
+                                    <p>You can broadcast this at <a href="http://opreturn.ninja">opreturn.ninja</a>. Just copy paste it in to the form and hit send. If you get a msg about dust back just try again. Also, sometimes you might be unlucky and get a double-spent transaction as your empower tx, in these cases you'll need to generate a new public ID. Maybe that will be fixed one day.</p>
                                 </div>
+
                             </div>
                         </div>
 
