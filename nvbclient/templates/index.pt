@@ -84,13 +84,21 @@
                             <div class="col-md-offset-2 col-md-8 row">
                                 <h3>Public ID</h3><hr>
                                 <h4>{{login.address}} <small>testnet: {{login.testnetAddress}}</small></h4>
-                                <div class="col-sm-8">
-                                    Votes Remaining: {{login.balance / 10000}}<br>
-                                    Unspent Outputs: {{login.n_utxos}}<br>
-                                    Approx cost of one vote: {{info.rate * 10000 | currency: '$': 3}}
+                                <div class="row">
+                                    <div class="col-sm-8">
+                                        Votes Remaining: {{login.balance / 10000}}<br>
+                                        Unspent Outputs: {{login.n_utxos}}<br>
+                                        Approx cost of one vote: {{info.rate * 10000 | currency: '$': 3}}
+                                    </div>
+                                    <div class="col-sm-4">
+                                         <span class="pull-right"><button class="btn btn-default" disabled="true">Get More Votes</button></span>
+                                    </div>
                                 </div>
-                                <div class="col-sm-4">
-                                     <span class="pull-right"><button class="btn btn-default" disabled="true">Get More Votes</button></span>
+                                <h3>Demo Network</h3><hr>
+                                <button class="btn btn-default" ng-click="login.ed.request()">Become Empowered (on demo network)</button>
+                                <div ng-show="login.ed.loading">Loading...</div>
+                                <div ng-show="login.ed.showMsg">
+                                    <pre>{{login.ed.msg}}</pre>
                                 </div>
                             </div>
                         </div>

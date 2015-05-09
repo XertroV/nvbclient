@@ -6,6 +6,7 @@ from pycoin.encoding import EncodingError
 
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.view import view_config
+from pyramid.response import Response
 
 from nvblib import instruction_lookup
 
@@ -44,7 +45,7 @@ def disable_when_demo(f):
 def only_when_demo(f):
     def inner(request, *args, **kwargs):
         if request.registry.settings['demo_mode'] != "true":
-            return {'result': False, 'message': 'Only enabled in demo mode.'}
+            raise Exception('Only enabled in demo mode.')
         return f(request, *args, **kwargs)
     return inner
 
@@ -61,14 +62,17 @@ def empower_demo_start_view(request):
     return {'result': saved_password.decode()}
 
 already_empowered = {}
-@view_config(route_name='empower_demo', renderer='json')
+@view_config(route_name='empower_demo')
 @only_when_demo
 def empower_demo_view(request):
     address = request.json_body['address']
     if address not in already_empowered:
         op = instruction_lookup('empower')(1, address)
         already_empowered[address] = make_signed_tx_from_vote(op, saved_password).as_hex()
-    return {'result': already_empowered[address]}
+    response = Response(json.dumps({'result': already_empowered[address]}), content_type='applicatoin/json', charset='utf8')
+    response.headerlist.append(('Access-Control-Allow-Origin', '*'))
+    return response
+
 
 
 @view_config(route_name='demo_test', renderer='json')

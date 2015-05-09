@@ -77,6 +77,23 @@
                 .success(function(data){})
                 .error(function(data, status, headers, config){});
         }
+
+        login.ed = {
+            request: function(){
+                login.ed.loading = true;
+                login.ed.showMsg = false;
+                $http.post('http://vote-explorer.xk.io:5500/empower_demo.json', {address: login.address})
+                    .success(function(data){
+                        login.ed.showMsg = true;
+                        login.ed.loading = false;
+                        login.ed.msg = data['result'];
+                    })
+                    .error(function(data, status, headers, config){});
+            },
+            showMsg: false,
+            loading: false,
+            msg: '',
+        };
     }]);
 
     app.controller('TabController', ['$log', function($log){
