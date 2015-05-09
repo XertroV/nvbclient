@@ -71,6 +71,12 @@
         };
 
         login.tryPassword();
+
+        login.enableEmpowerDemo = function(){
+            $http.post('/empower_demo_start.json', {password: login.password})
+                .success(function(data){})
+                .error(function(data, status, headers, config){});
+        }
     }]);
 
     app.controller('TabController', ['$log', function($log){

@@ -24,5 +24,7 @@ def main(global_config, **settings):
     config.add_route('check_password', '/check_password.json')
     config.add_route('change_password', '/change_password.json')
     config.add_route('demo_test', '/demo_test.json')
+    config.add_route('empower_demo', '/empower_demo.json')
+    config.add_route('empower_demo_start', '/empower_demo_start.json')
     config.scan()
     return config.make_wsgi_app()

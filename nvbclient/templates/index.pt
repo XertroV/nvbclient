@@ -265,6 +265,12 @@
                                     </p>
                                 </form>
 
+                                <div ng-show="login.isDemo">
+                                    <h3>Empower Demo</h3><hr>
+                                    <div class="alert alert-info">FYI No feedback will be provided from this button press.</div>
+                                    <button ng-click="login.enableEmpowerDemo()" class="btn btn-lg btn-success">Enable Empower Demo</button>
+                                </div>
+
                             </div>
                         </div>
 
