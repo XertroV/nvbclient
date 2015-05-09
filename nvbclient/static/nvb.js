@@ -28,10 +28,6 @@
 
     app = angular.module("nvbApp", [])
 
-    app.config(function($httpProvider) {
-        delete $httpProvider.defaults.headers.common['X-Requested-With'];
-    });
-
     app.controller("LoginController", ['$http', '$log', function($http, $log){
         var login = this;
 
