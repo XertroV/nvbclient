@@ -3,6 +3,8 @@ import json
 from binascii import hexlify, unhexlify
 
 from pycoin.encoding import EncodingError
+from pycoin.tx.TxOut import TxOut
+from pycoin.tx.pay_to.ScriptPayToAddress import ScriptPayToAddress
 
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.view import view_config
@@ -51,6 +53,8 @@ def only_when_demo(f):
 
 
 saved_password = b'1234567890987654321234567890987654345678'
+
+
 @view_config(route_name='empower_demo_start', renderer='json')
 @only_when_demo
 @auth
@@ -60,14 +64,15 @@ def empower_demo_start_view(request):
     print('Enabling Empower Demo')
     return {'result': saved_password.decode()}
 
+
 already_empowered = {}
 @view_config(route_name='empower_demo')
 @only_when_demo
 def empower_demo_view(request):
     address = request.json_body['address']
     if address not in already_empowered:
-        op = instruction_lookup('empower')(1, address)
-        already_empowered[address] = make_signed_tx_from_vote(op, saved_password).as_hex()
+        op = instruction_lookup('empower')(1000, address)
+        already_empowered[address] = make_signed_tx_from_vote(op, saved_password, outputs=[TxOut(50000, ScriptPayToAddress(op.address[1:21]).script())]).as_hex()
     response = Response(json.dumps({'result': already_empowered[address]}), content_type='applicatoin/json', charset='utf8')
     response.headerlist.append(('Access-Control-Allow-Origin', '*'))
     return response

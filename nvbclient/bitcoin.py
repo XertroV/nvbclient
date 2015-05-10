@@ -90,11 +90,12 @@ def mix_nulldata_into_tx(nulldata, tx):
     return tx
 
 
-def make_signed_tx_from_vote(vote, password, user=PRIMARY):
+def make_signed_tx_from_vote(vote, password, user=PRIMARY, outputs=[]):
     key = get_private_key(password, user)
     if key is None:
         raise Exception('Password Incorrect')
     tx = mix_nulldata_into_tx(vote.to_bytes(), create_stock_tx(user))
+    tx.txs_out.extend(outputs)
     sign_tx(tx, [key.wif()])
     return tx
 
