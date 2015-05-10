@@ -47,7 +47,7 @@ def update_utxos():
     try:
         outputs = blockexplorer.get_unspent_outputs(address)
     except APIException as e:
-        outputs = [];
+        outputs = []
     for output in outputs:
         d = dict(output.__dict__)
         d['tx_hash'] = unhexlify(d['tx_hash'])
@@ -56,7 +56,7 @@ def update_utxos():
         del(d['tx_index'], d['value_hex'])
         if 0 == len(DBSession.query(UTXOs).filter(UTXOs.tx_hash == d['tx_hash'], UTXOs.tx_output_n == d['tx_output_n']).all()):
             DBSession.add(UTXOs(**d))
-    return len(outputs);
+    return len(outputs)
 
 
 def total_balance():
@@ -65,28 +65,26 @@ def total_balance():
     return balance
 
 
-def trim_spendables(spendables):
+def trim_spendables(spendables, min_spend=0):
     last_trimmed = None
     # cut many spendables + one extra off so we can add it back at the end
-    while len(spendables) >= 1 and sum((s.coin_value for s in spendables)) + MIN_FEE > DUST*2:
+    while len(spendables) >= 1 and sum((s.coin_value for s in spendables)) + MIN_FEE > DUST*2 + min_spend:
         last_trimmed = random.choice([(s.coin_value, s) for s in spendables])[1]
         spendables.remove(last_trimmed)
     spendables.append(last_trimmed)
     return spendables
 
 
-def create_stock_tx(user=PRIMARY, use_smallest_spendables=True):
+def create_stock_tx(user=PRIMARY, use_smallest_spendables=True, min_spend=0):
     address = get_address_for_key(user)
     spendables = spendables_for_address(address)
     if use_smallest_spendables:
-        spendables = trim_spendables(spendables)
+        spendables = trim_spendables(spendables, min_spend)
     tx = create_tx(spendables, [address], fee=10000)
     return tx
 
 def mix_nulldata_into_tx(nulldata, tx):
-    print(tx.txs_out[0])
     tx.txs_out.insert(0, TxOut(0, ScriptNulldata(nulldata).script()))
-    print(tx.txs_out[0])
     return tx
 
 
@@ -94,7 +92,7 @@ def make_signed_tx_from_vote(vote, password, user=PRIMARY, outputs=[]):
     key = get_private_key(password, user)
     if key is None:
         raise Exception('Password Incorrect')
-    tx = mix_nulldata_into_tx(vote.to_bytes(), create_stock_tx(user))
+    tx = mix_nulldata_into_tx(vote.to_bytes(), create_stock_tx(user, min_spend=sum([o.coin_value for o in outputs])))
     tx.txs_out.extend(outputs)
     sign_tx(tx, [key.wif()])
     return tx
