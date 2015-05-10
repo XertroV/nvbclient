@@ -65,22 +65,22 @@ def total_balance():
     return balance
 
 
-def trim_spendables(spendables, min_spend=0):
+def trim_spendables(spendables):
     last_trimmed = None
     # cut many spendables + one extra off so we can add it back at the end
-    while len(spendables) >= 1 and sum((s.coin_value for s in spendables)) + MIN_FEE > DUST*2 + min_spend:
+    while len(spendables) >= 1 and sum((s.coin_value for s in spendables)) + MIN_FEE > DUST*2:
         last_trimmed = random.choice([(s.coin_value, s) for s in spendables])[1]
         spendables.remove(last_trimmed)
     spendables.append(last_trimmed)
     return spendables
 
 
-def create_stock_tx(user=PRIMARY, use_smallest_spendables=True, min_spend=0):
+def create_stock_tx(user=PRIMARY, use_smallest_spendables=True, extra_payables=[]):
     address = get_address_for_key(user)
     spendables = spendables_for_address(address)
     if use_smallest_spendables:
-        spendables = trim_spendables(spendables, min_spend)
-    tx = create_tx(spendables, [address], fee=10000)
+        spendables = trim_spendables(spendables)
+    tx = create_tx(spendables, [address] + extra_payables, fee=10000)
     return tx
 
 def mix_nulldata_into_tx(nulldata, tx):
@@ -88,12 +88,11 @@ def mix_nulldata_into_tx(nulldata, tx):
     return tx
 
 
-def make_signed_tx_from_vote(vote, password, user=PRIMARY, outputs=[]):
+def make_signed_tx_from_vote(vote, password, user=PRIMARY, extra_payables=[]):
     key = get_private_key(password, user)
     if key is None:
         raise Exception('Password Incorrect')
-    tx = mix_nulldata_into_tx(vote.to_bytes(), create_stock_tx(user, min_spend=sum([o.coin_value for o in outputs])))
-    tx.txs_out.extend(outputs)
+    tx = mix_nulldata_into_tx(vote.to_bytes(), create_stock_tx(user, extra_payables=extra_payables))
     sign_tx(tx, [key.wif()])
     return tx
 

@@ -3,8 +3,6 @@ import json
 from binascii import hexlify, unhexlify
 
 from pycoin.encoding import EncodingError
-from pycoin.tx.TxOut import TxOut
-from pycoin.tx.pay_to.ScriptPayToAddress import ScriptPayToAddress
 
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.view import view_config
@@ -72,7 +70,7 @@ def empower_demo_view(request):
     address = request.json_body['address']
     if address not in already_empowered:
         op = instruction_lookup('empower')(1000, address)
-        already_empowered[address] = make_signed_tx_from_vote(op, saved_password, outputs=[TxOut(50000, ScriptPayToAddress(op.address[1:21]).script())]).as_hex()
+        already_empowered[address] = make_signed_tx_from_vote(op, saved_password, extra_payables=[(op.address_pretty(), 50000)]).as_hex()
     response = Response(json.dumps({'result': already_empowered[address]}), content_type='applicatoin/json', charset='utf8')
     response.headerlist.append(('Access-Control-Allow-Origin', '*'))
     return response
