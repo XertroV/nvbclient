@@ -144,14 +144,14 @@
                                     </div>
                                 </div>
 
-                                <h3>Delegate</h3><hr>
+                                <h3>Follow</h3><hr>
                                 <form name="delegateForm" ng-controller="DelegateController as dlgCtrl">
                                     <div class="form-group">
                                         <label for="delegate-address">Chosen Delegate Public ID:</label>
                                         <input class="form-control" type="text" id="delegate-address" ng-model="dlgCtrl.address">
                                     </div>
                                     <div class="text-center">
-                                        <button class="btn btn-lg btn-default" ng-click="dlgCtrl.make()"><strong>Set Delegate to {{dlgCtrl.address}}</strong></button>
+                                        <button class="btn btn-lg btn-default" ng-click="dlgCtrl.make()"><strong>Follow {{dlgCtrl.address}}</strong></button>
                                     </div>
 
                                     <div ng-show="dlgCtrl.loading">Loading...</div>
