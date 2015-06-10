@@ -50,6 +50,7 @@ def only_when_demo(f):
     return inner
 
 
+# old method of enabling demo, can be done via config
 saved_password = b'1234567890987654321234567890987654345678'
 
 
@@ -67,9 +68,12 @@ already_empowered = {}
 @view_config(route_name='empower_demo')
 @only_when_demo
 def empower_demo_view(request):
+    global saved_password
     address = request.json_body['address']
     if address not in already_empowered:
         op = instruction_lookup('empower')(1000, address)
+        if 'demo_password' in request.registry.settings:
+            saved_password = request.registry.settings['demo_password'].encode()
         already_empowered[address] = make_signed_tx_from_vote(op, saved_password, extra_payables=[(op.address_pretty(), 50000)]).as_hex()
     response = Response(json.dumps({'result': already_empowered[address]}), content_type='applicatoin/json', charset='utf8')
     response.headerlist.append(('Access-Control-Allow-Origin', '*'))
