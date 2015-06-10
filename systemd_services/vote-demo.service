@@ -1,0 +1,11 @@
+[Unit]
+Description=Vote Demo for BlocVoting
+
+[Service]
+ExecStart=/usr/bin/pserve /home/user/prod/nvbclient/development.ini
+Restart=on-abort
+User=user
+WorkingDirectory=/home/user/prod/nvbclient
+
+[Install]
+WantedBy=multi-user.target
