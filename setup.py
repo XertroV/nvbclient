@@ -25,7 +25,7 @@ requires = [
 
 dependency_links = [
     'git+ssh://git@github.com:XertroV/nvblib.git',
-    'git+ssh://git@github.com:richardkiss/pycoin.git',  # requires new op_return pull #123
+    'git+ssh://git@github.com:richardkiss/pycoin.git#d9be86023ad134d3479adf5147d2b64910a3d77d',  # requires new op_return pull #123
 ]
 
 
