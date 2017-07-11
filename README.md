@@ -54,3 +54,7 @@ Getting Started
 
 - $VENV/bin/pserve development.ini
 
+#### Test checklist
+
+[] - item 1
+[x] - item 2
