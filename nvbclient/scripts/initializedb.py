@@ -44,12 +44,12 @@ def main(argv=sys.argv):
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.create_all(engine)
-    
+
     # initial encryption passphrase set to ''
     salt = os.urandom(32)
 
-    password = bytes(input("If you would like to set a password, please enter it now. Otherwise, just press enter. > ").encode())
-    
+    password = bytes() # bytes(input("If you would like to set a password, please enter it now. Otherwise, just press enter. > ").encode())
+
     # initial password is the empty string
     enc_key = gen_key_from_salt_and_password(salt, password)
     f = Fernet(enc_key)
